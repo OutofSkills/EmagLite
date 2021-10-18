@@ -7,7 +7,8 @@ using System.Threading.Tasks;
 
 namespace DataAccess.Repositories.Intefaces
 {
-    public interface IProductRepository: IRepository<Product>
+    public interface IProductRepository : IRepository<Product>
     {
+        IEnumerable<Product> SearchByName(string productName);
     }
 }

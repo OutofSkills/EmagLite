@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Models;
 using System;
 using System.Collections.Generic;
@@ -8,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace DataAccess
 {
-    public class AppDbContext: DbContext
+    public class AppDbContext: IdentityDbContext<User, Role, string>
     {
         public AppDbContext(DbContextOptions<AppDbContext> options): base(options) { }
        

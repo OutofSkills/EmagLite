@@ -15,12 +15,15 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Models;
 using Newtonsoft.Json.Serialization;
-using RESTApi.Helpers;
+using Models.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using RESTApi.Services.Intefaces;
+using RESTApi.Services;
+using RESTApi.Services.Interfaces;
 
 namespace RESTApi
 {
@@ -101,12 +104,17 @@ namespace RESTApi
                             Id = "Bearer"
                         }
                     },
-                    new string[] {}
+                    Array.Empty<string>()
                     }
                 });
             });
 
             services.AddScoped<IUnitOfWork, UnitOfWork>();
+            services.AddScoped<ITokenService, TokenService>();
+            services.AddScoped<IAccountService, AccountService>();
+            services.AddScoped<IRoleService, RoleService>();
+            services.AddScoped<IProductService, ProductService>();
+            services.AddScoped<IProductCategoryService, ProductCategoryService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

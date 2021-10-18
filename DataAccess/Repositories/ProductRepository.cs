@@ -10,6 +10,12 @@ namespace DataAccess.Repositories
 {
     public class ProductRepository: Repository<Product>, IProductRepository
     {
-        public ProductRepository(AppDbContext contex ): base(contex) { }
+        public ProductRepository(AppDbContext context): base(context) { }
+
+
+        public IEnumerable<Product> SearchByName(string productName)
+        {
+            return _context.Products.Where(p => p.Name == productName).ToList();
+        }
     }
 }
