@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace DataAccess
 {
-    public class AppDbContext: IdentityDbContext<User, Role, string>
+    public class AppDbContext: IdentityDbContext<User, Role, int>
     {
         public AppDbContext(DbContextOptions<AppDbContext> options): base(options) { }
        

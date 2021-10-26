@@ -1,8 +1,11 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Models;
 using Models.Helpers;
+using Models.ViewModels;
+using RESTApi.Services.Helpers;
 using RESTApi.Services.Intefaces;
 using System;
 using System.Collections.Generic;
@@ -16,80 +19,63 @@ namespace RESTApi.Services
 {
     public class TokenService : ITokenService
     {
-        private const double ExpiryDurationHours = 24;
+        private readonly SignInManager<User> signInManager;
         private readonly UserManager<User> userManager;
-        private readonly ApiSettings apiSettings;
+        private readonly ITokenBuilder tokenService;
+        private readonly RoleManager<Role> roleManager;
 
-        public TokenService(UserManager<User> userManager, IOptions<ApiSettings> options)
+        public TokenService(SignInManager<User> signInManager, UserManager<User> userManager, ITokenBuilder tokenService, RoleManager<Role> roleManager)
         {
+            this.signInManager = signInManager;
             this.userManager = userManager;
-            this.apiSettings = options.Value;
+            this.tokenService = tokenService;
+            this.roleManager = roleManager;
         }
 
-        public async Task<string> BuildTokenAsync(User user)
+        public async Task CreateTokenAsync(RegisterRequest registerRequest)
         {
-            var signInCredentials = GetSigningCredentials();
-            var claims = await GetClaims(user);
+            if (registerRequest is null)
+                throw new Exception("The register request was null.");
 
-            var tokenOptions = new JwtSecurityToken(
-                issuer: apiSettings.ValidIssuer,
-                audience: apiSettings.ValidAudience,
-                claims: claims,
-                expires: DateTime.Now.AddDays(ExpiryDurationHours),
-                signingCredentials: signInCredentials
-                );
-            var token = new JwtSecurityTokenHandler().WriteToken(tokenOptions);
+            User user = new();
+
+            // Using AutoMapper to copy data from the register request to 
+            // the User model
+            var config = new MapperConfiguration(cfg =>
+            {
+                cfg.CreateMap<RegisterRequest, User>();
+            });
+
+            IMapper iMapper = config.CreateMapper();
+            user = iMapper.Map<RegisterRequest, User>(registerRequest);
+
+            // Create the new user
+            var result = await userManager.CreateAsync(user, registerRequest.Password);
+            if (!result.Succeeded)
+                throw new Exception(result.Errors.FirstOrDefault().ToString());
+            var role = new Role { Name = "Customer", Description = "Basic role for users that can access the public UI and Logic." };
+            await roleManager.CreateAsync(role);
+
+            // Add to default role
+            var roleResult = await userManager.AddToRoleAsync(user, "Customer");
+            if (!roleResult.Succeeded)
+                throw new Exception(roleResult.Errors.FirstOrDefault().ToString());
+        }
+
+        public async Task<string> GetTokenAsync(LoginRequest loginRequest)
+        {
+            // Check the credentials
+            var result = await signInManager.PasswordSignInAsync(loginRequest.Email, loginRequest.Password, false, false);
+            if (!result.Succeeded)
+                throw new Exception("Invalid Credentials.");
+
+            var user = await userManager.FindByEmailAsync(loginRequest.Email);
+            if (user is null)
+                throw new Exception("Invalid Authentication.");
+
+            var token = await tokenService.BuildTokenAsync(user);
 
             return token;
-        }
-
-        public bool ValidateToken(string token)
-        {
-            var secretKey = Encoding.UTF8.GetBytes(apiSettings.SecretKey);
-            var mySecurityKey = new SymmetricSecurityKey(secretKey);
-            var tokenHandler = new JwtSecurityTokenHandler();
-            try
-            {
-                tokenHandler.ValidateToken(token,
-                new TokenValidationParameters
-                {
-                    ValidateIssuerSigningKey = true,
-                    ValidateIssuer = true,
-                    ValidateAudience = true,
-                    ValidIssuer = apiSettings.ValidIssuer,
-                    ValidAudience = apiSettings.ValidAudience,
-                    IssuerSigningKey = mySecurityKey,
-                }, out SecurityToken validatedToken);
-            }
-            catch
-            {
-                return false;
-            }
-            return true;
-        }
-
-        private SigningCredentials GetSigningCredentials()
-        {
-            var secretKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(apiSettings.SecretKey));
-
-            return new SigningCredentials(secretKey, SecurityAlgorithms.HmacSha256);
-        }
-
-        private async Task<List<Claim>> GetClaims(User user)
-        {
-            var claims = new List<Claim>
-            {
-                new Claim(ClaimTypes.Email, user.Email),
-                new Claim(ClaimTypes.Name, user.UserName)
-            };
-
-            var roles = await userManager.GetRolesAsync(user);
-            foreach (var role in roles)
-            {
-                claims.Add(new Claim(ClaimTypes.Role, role));
-            }
-
-            return claims;
         }
     }
 }

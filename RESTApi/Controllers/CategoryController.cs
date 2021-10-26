@@ -6,22 +6,20 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-
 namespace RESTApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ProductCategoryController : ControllerBase
+    public class CategoryController : ControllerBase
     {
         private readonly IProductCategoryService productCategoryService;
 
-        public ProductCategoryController(IProductCategoryService productCategoryService)
+        public CategoryController(IProductCategoryService productCategoryService)
         {
             this.productCategoryService = productCategoryService;
         }
 
-        // GET: api/<ProductCategoryController>
+        // GET: api/<CategoryController>
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Category>>> GetAsync()
         {
@@ -30,7 +28,7 @@ namespace RESTApi.Controllers
             return Ok(categories);
         }
 
-        // GET api/<ProductCategoryController>/5
+        // GET api/<CategoryController>/5
         [HttpGet("{id}")]
         public async Task<ActionResult> GetAsync(int id)
         {
@@ -38,21 +36,21 @@ namespace RESTApi.Controllers
             return Ok(category);
         }
 
-        // POST api/<ProductCategoryController>
+        // POST api/<CategoryController>
         [HttpPost]
         public void Post([FromBody] Category category)
         {
             productCategoryService.AddCategory(category);
         }
 
-        // PUT api/<ProductCategoryController>/5
+        // PUT api/<CategoryController>/5
         [HttpPut("{id}")]
         public void Put(int id, [FromBody] Category category)
         {
             productCategoryService.EditCategory(category);
         }
 
-        // DELETE api/<ProductCategoryController>/5
+        // DELETE api/<CategoryController>/5
         [HttpDelete("{id}")]
         public async Task DeleteAsync(int id)
         {

@@ -9,20 +9,16 @@ using Microsoft.AspNetCore.Identity;
 
 namespace Models
 {
-    public class User: IdentityUser
+    public class User: IdentityUser<int>
     {
         [Key]
-        public override string Id { get; set; }
+        public override int Id { get; set; }
         public override string UserName { get; set; }
         [Required]
         public override string Email { get; set; }
-        [Required]
         public string FirstName { get; set; }
-        [Required]
         public string LastName { get; set; }
-        public string RoleId { get; set; }
 
-        [ForeignKey(nameof(RoleId))]
         public virtual Role Role { get; set; }
     }
 }

@@ -24,6 +24,7 @@ using System.Threading.Tasks;
 using RESTApi.Services.Intefaces;
 using RESTApi.Services;
 using RESTApi.Services.Interfaces;
+using RESTApi.Services.Helpers;
 
 namespace RESTApi
 {
@@ -110,8 +111,8 @@ namespace RESTApi
             });
 
             services.AddScoped<IUnitOfWork, UnitOfWork>();
+            services.AddScoped<ITokenBuilder, TokenBuilder>();
             services.AddScoped<ITokenService, TokenService>();
-            services.AddScoped<IAccountService, AccountService>();
             services.AddScoped<IRoleService, RoleService>();
             services.AddScoped<IProductService, ProductService>();
             services.AddScoped<IProductCategoryService, ProductCategoryService>();

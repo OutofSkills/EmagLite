@@ -8,10 +8,10 @@ using System.Threading.Tasks;
 
 namespace Models
 {
-    public class Role: IdentityRole<string>
+    public class Role: IdentityRole<int>
     {
         [Key]
-        public override string Id { get; set; }
+        public override int Id { get; set; }
         [Required]
         public override string Name { get; set; }
         public string Description { get; set; }
