@@ -53,8 +53,6 @@ namespace RESTApi.Services
             var result = await userManager.CreateAsync(user, registerRequest.Password);
             if (!result.Succeeded)
                 throw new Exception(result.Errors.FirstOrDefault().ToString());
-            var role = new Role { Name = "Customer", Description = "Basic role for users that can access the public UI and Logic." };
-            await roleManager.CreateAsync(role);
 
             // Add to default role
             var roleResult = await userManager.AddToRoleAsync(user, "Customer");
@@ -64,13 +62,13 @@ namespace RESTApi.Services
 
         public async Task<string> GetTokenAsync(LoginRequest loginRequest)
         {
-            // Check the credentials
-            var result = await signInManager.PasswordSignInAsync(loginRequest.Email, loginRequest.Password, false, false);
-            if (!result.Succeeded)
-                throw new Exception("Invalid Credentials.");
-
             var user = await userManager.FindByEmailAsync(loginRequest.Email);
             if (user is null)
+                throw new Exception("Invalid Credentials.");
+
+            // Check the credentials
+            var result = await signInManager.PasswordSignInAsync(user.UserName, loginRequest.Password, false, false);
+            if (!result.Succeeded)
                 throw new Exception("Invalid Authentication.");
 
             var token = await tokenService.BuildTokenAsync(user);

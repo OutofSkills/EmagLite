@@ -11,23 +11,23 @@ namespace RESTApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class SecurityController : ControllerBase
+    public class TokenController : ControllerBase
     {
         private readonly ITokenService tokenService;
 
-        public SecurityController(ITokenService tokenService)
+        public TokenController(ITokenService tokenService)
         {
             this.tokenService = tokenService;
         }
 
-        // POST api/<SecurityController>
+        // POST api/<TokenController>
         [HttpPost]
         public async Task PostAsync([FromBody] RegisterRequest registerRequest)
         {
             await tokenService.CreateTokenAsync(registerRequest);
         }
 
-        // GET api/<SecurityController>
+        // GET api/<TokenController>
         [HttpGet]
         public async Task<string> GetAsync([FromBody] LoginRequest loginRequest)
         {
