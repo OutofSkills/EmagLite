@@ -1,10 +1,12 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Models;
 using Models.Helpers;
 using Models.ViewModels;
+using RESTApi.Services.CustomExceptions;
 using RESTApi.Services.Helpers;
 using RESTApi.Services.Intefaces;
 using System;
@@ -22,20 +24,23 @@ namespace RESTApi.Services
         private readonly SignInManager<User> signInManager;
         private readonly UserManager<User> userManager;
         private readonly ITokenBuilder tokenService;
-        private readonly RoleManager<Role> roleManager;
+        private readonly ILogger<ITokenService> logger; 
 
-        public TokenService(SignInManager<User> signInManager, UserManager<User> userManager, ITokenBuilder tokenService, RoleManager<Role> roleManager)
+        public TokenService(SignInManager<User> signInManager, UserManager<User> userManager, ITokenBuilder tokenService, ILogger<ITokenService> logger)
         {
             this.signInManager = signInManager;
             this.userManager = userManager;
             this.tokenService = tokenService;
-            this.roleManager = roleManager;
+            this.logger = logger;
         }
 
         public async Task CreateTokenAsync(RegisterRequest registerRequest)
         {
             if (registerRequest is null)
+            {
+                logger.LogInformation("The register request was null.");
                 throw new Exception("The register request was null.");
+            }
 
             User user = new();
 
@@ -64,12 +69,18 @@ namespace RESTApi.Services
         {
             var user = await userManager.FindByEmailAsync(loginRequest.Email);
             if (user is null)
-                throw new Exception("Invalid Credentials.");
+            {
+                logger.LogInformation("Invalid Credentials.");
+                throw new InvalidCredentialsException("Invalid Credentials.");
+            }
 
             // Check the credentials
             var result = await signInManager.PasswordSignInAsync(user.UserName, loginRequest.Password, false, false);
             if (!result.Succeeded)
-                throw new Exception("Invalid Authentication.");
+            {
+                logger.LogInformation("Invalid Authentication.");
+                throw new InvalidAuthenticationException("Invalid Authentication.");
+            }
 
             var token = await tokenService.BuildTokenAsync(user);
 

@@ -25,6 +25,7 @@ using RESTApi.Services.Intefaces;
 using RESTApi.Services;
 using RESTApi.Services.Interfaces;
 using RESTApi.Services.Helpers;
+using RESTApi.Services.Middleware;
 
 namespace RESTApi
 {
@@ -158,6 +159,8 @@ namespace RESTApi
             }
 
             app.UseHttpsRedirection();
+
+            app.UseMiddleware(typeof(ExceptionHandlingMiddleware));
 
             app.UseCors("EmagLite");
 
