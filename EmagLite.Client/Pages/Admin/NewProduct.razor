@@ -1,0 +1,99 @@
+﻿@page "/management/products/new-product"
+
+@using System.IO 
+@using Services.Interfaces
+@inject ISnackbar Snackbar
+
+<MudContainer MaxWidth="MaxWidth.ExtraLarge">
+    <MudGrid>
+        <MudItem lg="8" md="8" xs="12" sm="12">
+            <MudElement Class="d-flex flex-column">
+                <MudText Typo="Typo.h5" Class="mb-3">New Product</MudText>
+                <EditForm Model="Product" OnValidSubmit="HandleSubmit">
+                    <DataAnnotationsValidator />
+                    <MudCard>
+                        <MudCardContent>
+                            <MudTextField Label="Brand"
+                                          @bind-Value="Product.Brand" For="@(() => Product.Brand)" />
+                            <MudTextField Label="Name" Class="mt-3"
+                                          @bind-Value="Product.Name" For="@(() => Product.Name)" />
+                            <MudTextField Label="Amount" Class="mt-3" HelperText="Amount of available items."
+                                          @bind-Value="Product.Amount" For="@(() => Product.Amount)" />
+                            <MudTextField Label="Price" Class="mt-3" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.AttachMoney"
+                                          @bind-Value="Product.Price" For="@(() => Product.Price)" min="0" step=".01" />
+                            <InputFile id="fileInput" OnChange="UploadFile" hidden accept=".jpg, .jpeg, .png" />
+                            <MudSelect T="string" @bind-Value="_selectedCategoryName" Label="Category" AnchorOrigin="Origin.BottomCenter">
+                                @if(Categories is not null)
+                                {
+                                    @foreach(var category in Categories)
+                                    {
+                                        <MudSelectItem Value="@(category.Name)" />
+                                    }
+                                }
+                            </MudSelect>
+                        </MudCardContent>
+
+                        <MudCardActions>
+                            <MudButton HtmlTag="label"
+                                       Variant="Variant.Filled"
+                                       Color="Color.Secondary"
+                                       StartIcon="@Icons.Filled.CloudUpload"
+                                       Class="mr-auto"
+                                       for="fileInput">
+                                Upload your image
+                            </MudButton>
+
+                            <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto">Save Product</MudButton>
+                        </MudCardActions>
+                    </MudCard>
+                </EditForm>
+            </MudElement>
+        </MudItem>
+        <MudItem lg="4" md="4" xs="12" sm="12">
+            <MudElement Class="d-flex flex-column">
+                <MudText Typo="Typo.h5" Class="mb-3">Preview</MudText>
+                <ProductCard Product="Product" />
+            </MudElement>
+        </MudItem>
+    </MudGrid>
+</MudContainer>
+
+@code {
+    public Product Product { get; set; } = new();
+    protected IEnumerable<Category> Categories { get; set; }
+    private string _selectedCategoryName;
+
+    [Inject] public IProductsService ProductsService{ get; set; }
+    [Inject] public ICategoriesService CategoriesService{ get; set; }
+
+    protected async override Task OnInitializedAsync()
+    {
+        Categories = await CategoriesService.GetCategoriesAsync();
+    }
+
+    protected async Task HandleSubmit()
+    {
+        var selectedCategory = Categories.Where(c => c.Name == _selectedCategoryName).FirstOrDefault();
+
+        Product.CategoryId = selectedCategory.Id;
+
+        await ProductsService.AddProductAsync(Product);
+    }
+
+    private async Task UploadFile(InputFileChangeEventArgs e)
+    {
+        var entries = e.GetMultipleFiles();
+        //Do your validations here
+        //Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopCenter;
+        //Snackbar.Add($"File with {entries.FirstOrDefault().Size} bytes size are not allowed", Severity.Error);
+        //Snackbar.Add($"File starting with letter {entries.FirstOrDefault().Name.Substring(0, 1)} are not recommended", Severity.Warning);
+        //Snackbar.Add($"This file has the extension {entries.FirstOrDefault().Name.Split(".").Last()}", Severity.Info);
+
+        //TODO upload the files to the server
+        MemoryStream ms = new MemoryStream();
+        await e.File.OpenReadStream().CopyToAsync(ms);
+        var bytes = ms.ToArray();
+
+        Product.Image = bytes;
+    }
+}

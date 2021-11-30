@@ -1,0 +1,174 @@
+﻿@using System.Globalization
+@using System.Text.Json
+
+@inherits LayoutComponentBase
+@inject NavigationManager NavManager
+
+<MudThemeProvider Theme="_theme" />
+<MudDialogProvider />
+<MudSnackbarProvider />
+
+<MudLayout>
+    <MudAppBar Elevation="25">
+        <MudHidden Breakpoint="Breakpoint.SmAndDown">
+            <MudIcon Icon="@Icons.Custom.Brands.MudBlazor" Size="Size.Large" />
+        </MudHidden>
+        <MudHidden Breakpoint="Breakpoint.MdAndUp">
+            <MudIconButton Icon="@Icons.Material.Outlined.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
+        </MudHidden>
+        <MudHidden Breakpoint="Breakpoint.Xs">
+            <MudText Typo="Typo.h6" Class="ml-4">Client</MudText>
+        </MudHidden>
+        <MudHidden Breakpoint="Breakpoint.Xs" Invert="true">
+            <MudText Typo="Typo.subtitle2">Client</MudText>
+        </MudHidden>
+        <MudSpacer />
+        <MudMenu Icon="@Icons.Material.Outlined.Translate" Color="Color.Inherit" Direction="Direction.Bottom" OffsetY="true" Dense="true">
+            <MudMenuItem>English</MudMenuItem>
+            <MudMenuItem>Swedish</MudMenuItem>
+            <MudMenuItem>Old Norse</MudMenuItem>
+        </MudMenu>
+        <AuthorizeView>
+            <Authorized>
+                <MudMenu Direction="Direction.Left" OffsetX="true" Dense="true" Class="mt-1 ml-4">
+                    <ActivatorContent>
+                        @if (user.Avatar is null)
+                        {
+                            <MudAvatar Class="text-light" Style="border-color:white" Variant="Variant.Outlined" Size="Size.Small">
+                                @(context.User.FindFirst(ClaimTypes.Name).Value.ToUpper().Substring(0, 1))
+                            </MudAvatar>
+                        }
+                        else
+                        {
+                            <MudAvatar Image="@string.Format("data:image/svg+xml+jpg+jpeg;base64,{0}", Convert.ToBase64String(user.Avatar))" />
+                        }
+                    </ActivatorContent>
+                    <ChildContent>
+                        @if (user.Avatar is null)
+                        {
+                            <PersonCard Class="mt-n2" UserName=@(context.User.FindFirst(ClaimTypes.Name).Value)
+                                        Role=@(context.User.FindFirst(ClaimTypes.Role).Value)
+                                        Avatar=@(context.User.FindFirst(ClaimTypes.Name).Value.ToUpper().Substring(0, 1)) />
+                        }
+                        else
+                        {
+                            <PersonCard Class="mt-n2" UserName=@(context.User.FindFirst(ClaimTypes.Name).Value)
+                                        Role=@(context.User.FindFirst(ClaimTypes.Role).Value)
+                                        Avatar="@string.Format("data:image/svg+xml+jpg+jpeg;base64,{0}", Convert.ToBase64String(user.Avatar))" />
+                        }
+                        <MudDivider Class="mb-2" />
+                        <MudListItem Text="Account" Icon="@Icons.Material.Outlined.Person" Href="/settings" />
+                        <MudListItem Text="Logout" Icon="@Icons.Material.Outlined.Login" Href="/authentication/logout" />
+                    </ChildContent>
+                </MudMenu>
+            </Authorized>
+            <NotAuthorized>
+                <MudIconButton Color="Color.Inherit" Title="Register" Link="/authentication/register">
+                    <i class="fas fa-user-plus" title="Register" aria-hidden="true"></i>
+                </MudIconButton>
+                <MudIconButton Icon="@Icons.Material.Filled.Login" Color="Color.Inherit" Title="Login" Link="/authentication/login" />
+            </NotAuthorized>
+        </AuthorizeView>
+    </MudAppBar>
+    <MudDrawer @bind-Open="_drawerOpen" Elevation="25" ClipMode="DrawerClipMode.Always">
+        <NavMenu />
+    </MudDrawer>
+    <MudMainContent>
+        <MudHidden Breakpoint="Breakpoint.SmAndDown">
+            <MudToolBar DisableGutters="true">
+                <MudIconButton Icon="@Icons.Material.Outlined.Menu" Color="Color.Inherit" OnClick="@((e) => DrawerToggle())" Class="ml-3" />
+                <MudBreadcrumbs Items="_items"></MudBreadcrumbs>
+            </MudToolBar>
+        </MudHidden>
+        <MudContainer MaxWidth="MaxWidth.False" Class="mt-4">
+            @Body
+        </MudContainer>
+    </MudMainContent>
+</MudLayout>
+
+
+@code { 
+    private MudBlazorAdminDashboard _theme = new();
+
+    public bool _drawerOpen = true;
+
+    User user = new();
+
+    [Inject] public IUsersService UsersService { get; set; }
+
+    [Inject] public AuthenticationStateProvider AuthStateProvider { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Subscribe to Location changed event
+        // to update the Breadcrubs container
+        NavManager.LocationChanged += (obj, locChange) =>
+        {
+            SeedBreadcrubs();
+            StateHasChanged();
+        };
+
+        // Populate the Breadcrubs on component initialized
+        SeedBreadcrubs();
+
+        StateHasChanged();
+
+        var id = await GetLoggedUserId();
+        if(id != 0)
+        {
+            var httpResponse = await UsersService.GetUserAsync(id);
+
+            var responseString = await httpResponse.Content.ReadAsStringAsync();
+
+            user = JsonSerializer.Deserialize<User>(responseString, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+        }
+        else
+        {
+            user = null;
+        }
+    }
+
+    private List<BreadcrumbItem> _items = new();
+
+    private void SeedBreadcrubs()
+    {
+        if (_items.Count is not 0)
+            _items.Clear();
+
+        var uri = NavManager.ToBaseRelativePath(NavManager.Uri);
+
+        var uriComponents = uri.Split('/');
+
+        foreach(var component in uriComponents)
+        {
+            _items.Add(new BreadcrumbItem(ToTitleCase(component), href: NavManager.ToAbsoluteUri(component).ToString()));
+        }
+    }
+
+    
+
+    private string ToTitleCase(string str)
+    {
+        TextInfo textInfo = new CultureInfo("en-US", false).TextInfo;
+
+        return textInfo.ToTitleCase(str);
+    }
+
+    void DrawerToggle()
+    {
+        _drawerOpen = !_drawerOpen;
+    }
+
+    private async Task<int> GetLoggedUserId()
+    {
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        if (authState.User.Identity.IsAuthenticated)
+        {
+            var userId = authState.User.FindFirst(ClaimTypes.NameIdentifier).Value;
+
+            return int.Parse(userId);
+        }
+
+        return 0;
+    }
+}

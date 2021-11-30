@@ -1,4 +1,5 @@
 ﻿using DataAccess.Repositories.Intefaces;
+using RESTApi.DataAccess.Repositories.Intefaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,6 +15,7 @@ namespace DataAccess.UnitOfWork
         /// </summary>
         IProductRepository ProductRepository { get; }
         ICategoryRepository CategoryRepository { get; }
+        IUsersRepository UsersRepository { get; }
 
 
         /// <summary>

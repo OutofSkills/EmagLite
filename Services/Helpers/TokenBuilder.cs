@@ -35,7 +35,7 @@ namespace RESTApi.Services.Helpers
                 issuer: apiSettings.ValidIssuer,
                 audience: apiSettings.ValidAudience,
                 claims: claims,
-                expires: DateTime.Now.AddDays(ExpiryDurationHours),
+                expires: DateTime.Now.AddHours(ExpiryDurationHours),
                 signingCredentials: signInCredentials
                 );
             var token = new JwtSecurityTokenHandler().WriteToken(tokenOptions);
@@ -80,7 +80,8 @@ namespace RESTApi.Services.Helpers
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.Email, user.Email),
-                new Claim(ClaimTypes.Name, user.UserName)
+                new Claim(ClaimTypes.Name, user.UserName),
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString())
             };
 
             var roles = await userManager.GetRolesAsync(user);

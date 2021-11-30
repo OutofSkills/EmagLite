@@ -18,6 +18,7 @@ namespace Models
         public override string Email { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
+        public byte[] Avatar { get; set; }
 
         public virtual Role Role { get; set; }
     }

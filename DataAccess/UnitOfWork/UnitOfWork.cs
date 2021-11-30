@@ -1,5 +1,7 @@
 ﻿using DataAccess.Repositories;
 using DataAccess.Repositories.Intefaces;
+using RESTApi.DataAccess.Repositories;
+using RESTApi.DataAccess.Repositories.Intefaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,6 +14,7 @@ namespace DataAccess.UnitOfWork
     {
         public IProductRepository ProductRepository { get; private set; }
         public ICategoryRepository CategoryRepository { get; private set; }
+        public IUsersRepository UsersRepository { get; private set; }
 
 
         /// <summary>
@@ -26,8 +29,9 @@ namespace DataAccess.UnitOfWork
         public UnitOfWork(AppDbContext context)
         {
             _context = context;
-            ProductRepository = new ProductRepository(context);
-            CategoryRepository = new CategoryRepository(context);
+            ProductRepository = new ProductsRepository(context);
+            CategoryRepository = new CategoriesRepository(context);
+            UsersRepository = new UsersRepository(context);
         }
 
         /// <summary>

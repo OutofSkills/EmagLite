@@ -1,0 +1,32 @@
+﻿
+@if (Product is null)
+{
+    <MudProgressCircular Color="Color.Primary" Size="Size.Large" Indeterminate="true" />
+}
+else
+{
+    <MudCard>
+        @if (Product.Image is null)
+        {
+            <MudCardMedia Image="/Images/no_available_image.jpg" Height="250" />
+        }
+        else
+        {
+            <MudCardMedia Image="@string.Format("data:image/svg+xml+jpg+jpeg;base64,{0}", Convert.ToBase64String(Product.Image))" Height="250" />
+        }
+        <MudCardContent Style="text-align:center">
+            <MudText Typo="Typo.h5">@Product.Name</MudText>
+            <MudRating SelectedValue="@Product.Rating" />
+            <MudText Typo="Typo.body2">@Product.Price <b>Lei</b></MudText>
+        </MudCardContent>
+        <MudCardActions>
+            <MudButton Variant="Variant.Text" Color="Color.Primary">Add to Cart</MudButton>
+            <MudButton Variant="Variant.Text" Color="Color.Primary">Details</MudButton>
+        </MudCardActions>
+    </MudCard>
+}
+
+@code {
+    [Parameter]
+    public Product Product { get; set; }
+}

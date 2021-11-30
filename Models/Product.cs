@@ -17,9 +17,9 @@ namespace Models
         [Required]
         public string Brand { get; set; }
         [Required]
-        public string Image { get; set; }
+        public byte[] Image { get; set; }
         [Required]
-        public double Price { get; set; }
+        public decimal Price { get; set; }
         public int Rating { get; set; }
         [Required]
         public int Amount { get; set; }

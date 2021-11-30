@@ -1,0 +1,25 @@
+﻿
+@if (Product is null)
+{
+    <MudProgressCircular Color="Color.Primary" Size="Size.Large" Indeterminate="true" />
+}
+else
+{
+    <MudCard>
+        <MudCardMedia Image="@Product.Image" Height="250"/>
+        <MudCardContent>
+            <MudText Typo="Typo.h5">@Product.Name</MudText>
+            <MudRating SelectedValue="@Product.Rating" />
+            <MudText Typo="Typo.body2">@Product.Price</MudText>
+        </MudCardContent>
+        <MudCardActions>
+            <MudButton Variant="Variant.Text" Color="Color.Primary">Add to cart</MudButton>
+            <MudButton Variant="Variant.Text" Color="Color.Primary">Details</MudButton>
+        </MudCardActions>
+    </MudCard>
+}
+
+@code {
+    [Parameter]
+    public Product Product { get; set; }
+}

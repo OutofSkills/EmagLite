@@ -1,4 +1,5 @@
-﻿using DataAccess.UnitOfWork;
+﻿using AutoMapper;
+using DataAccess.UnitOfWork;
 using Models;
 using RESTApi.Services.Intefaces;
 using System;
@@ -18,10 +19,16 @@ namespace RESTApi.Services
             this.unitOfWork = unitOfWork;
         }
 
-        public void AddProduct(Product product)
+        public async Task AddProductAsync(Product product)
         {
             if (product is null)
                 throw new Exception("The product object was null.");
+
+            var productCategory = await unitOfWork.CategoryRepository.GetById(product.CategoryId);
+            if (productCategory is null)
+                throw new Exception("The selected product category doesn't exist.");
+
+            product.Category = productCategory;
 
             unitOfWork.ProductRepository.Insert(product);
             unitOfWork.SaveChanges();
@@ -40,10 +47,21 @@ namespace RESTApi.Services
             unitOfWork.SaveChanges();
         }
 
-        public void EditProduct(Product product)
+        public async Task EditProductAsync(int id, Product product)
         {
             if (product is null)
                 throw new Exception("The product object was null.");
+
+            var existingProduct = await unitOfWork.ProductRepository.GetById(id);
+            if (existingProduct is null)
+                throw new Exception("No existing product with the given Id.");
+
+            var productCategory = await unitOfWork.CategoryRepository.GetById(product.CategoryId);
+            if (productCategory is null)
+                throw new Exception("The selected product category doesn't exist.");
+
+            // Set the id for the product to update. Idk how correct is this thing
+            product.Id = id;
 
             unitOfWork.ProductRepository.Update(product);
             unitOfWork.SaveChanges();

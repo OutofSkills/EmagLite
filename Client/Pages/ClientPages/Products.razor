@@ -1,0 +1,21 @@
+﻿@page "/products"
+@page "/{Category}/products"
+
+@foreach(var product in ProductList)
+{ 
+    <ProductCard Product="product" />
+}
+
+
+@code {
+    [Parameter]
+    public Category Category { get; set; }
+
+    public List<Product> ProductList { get; set; } = new();
+
+    protected override void OnInitialized()
+    {
+        ProductList.Add(new Product { Brand = "Sony", Amount = 10, Image = "https://www.powerplanetonline.com/cdnassets/sony_wh_1000xm4_negro_auriculares_inalambrico_01_l.jpg", Name = "Sony WH-1000XM4", Price = 1599, Rating = 5, Category = new() });
+        ProductList.Add(new Product { Brand = "JBL", Amount = 12, Image = "https://m.media-amazon.com/images/I/71ynIMjwgwL._SL1500_.jpg", Name = "JBL T460BT by Harman", Price = 1299, Rating = 4, Category = new() });
+    }
+}

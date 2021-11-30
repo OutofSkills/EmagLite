@@ -1,0 +1,26 @@
+﻿@page "/products"
+@page "/{Category}/products"
+
+
+<MudGrid>
+    @foreach (var product in ProductList)
+    {
+        <MudItem xs="12" md="6" lg="3">
+            <ProductCard Product="product" />
+        </MudItem>
+    }
+</MudGrid>
+
+
+@code {
+    [Parameter]
+    public Category Category { get; set; }
+
+    public List<Product> ProductList { get; set; } = new();
+
+    protected override void OnInitialized()
+    {
+        ProductList.Add(new Product { Brand = "Sony", Amount = 10, Name = "Sony WH-1000XM4", Price = 1599, Rating = 5, Category = new() });
+        ProductList.Add(new Product { Brand = "JBL", Amount = 12, Name = "JBL T460BT by Harman", Price = 1299, Rating = 4, Category = new() });
+    }
+}

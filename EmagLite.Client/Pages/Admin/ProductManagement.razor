@@ -1,0 +1,90 @@
+﻿@page "/management/products"
+
+@using System.Net.Http.Json
+@inject HttpClient httpClient
+
+<MudTable ServerData="@(new Func<TableState, Task<TableData<Product>>>(ServerReload))"
+          Dense="true" Hover="true" @ref="table">
+    <ToolBarContent>
+        <MudText Typo="Typo.h6">Products</MudText>
+        <MudSpacer />
+        <MudTextField T="string" ValueChanged="@(s=>OnSearch(s))" Placeholder="Search" Adornment="Adornment.Start"
+                      AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+    </ToolBarContent>
+    <HeaderContent>
+        <MudTh><MudTableSortLabel SortLabel="Id" T="Product">Id</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortLabel="Brand" T="Product">Brand</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortLabel="Name" T="Product">Name</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortLabel="Amount" T="Product">Amount</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortLabel="Price" T="Product">Price</MudTableSortLabel></MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd DataLabel="Id">@context.Id</MudTd>
+        <MudTd DataLabel="Brand">@context.Brand</MudTd>
+        <MudTd DataLabel="Name">@context.Name</MudTd>
+        <MudTd DataLabel="Amount">@context.Amount</MudTd>
+        <MudTd DataLabel="Price">@context.Price</MudTd>
+    </RowTemplate>
+    <NoRecordsContent>
+        <MudText>No matching records found</MudText>
+    </NoRecordsContent>
+    <LoadingContent>
+        <MudText>Loading...</MudText>
+    </LoadingContent>
+    <PagerContent>
+        <MudTablePager />
+    </PagerContent>
+</MudTable>
+@code {
+    private IEnumerable<Product> pagedData;
+    private MudTable<Product> table;
+
+    private int totalItems;
+    private string searchString = null;
+
+    /// <summary>
+    /// Here we simulate getting the paged, filtered and ordered data from the server
+    /// </summary>
+    private async Task<TableData<Product>> ServerReload(TableState state)
+    {
+        IEnumerable<Product> data = await httpClient.GetFromJsonAsync<List<Product>>("https://localhost:44351/api/Products");
+        data = data.Where(element =>
+        {
+            if (string.IsNullOrWhiteSpace(searchString))
+                return true;
+            if (element.Brand.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+                return true;
+            if (element.Name.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+                return true;
+            return false;
+        }).ToArray();
+        totalItems = data.Count();
+        switch (state.SortLabel)
+        {
+            case "Id":
+                data = data.OrderByDirection(state.SortDirection, o => o.Id);
+                break;
+            case "Brand":
+                data = data.OrderByDirection(state.SortDirection, o => o.Brand);
+                break;
+            case "Name":
+                data = data.OrderByDirection(state.SortDirection, o => o.Name);
+                break;
+            case "Amount":
+                data = data.OrderByDirection(state.SortDirection, o => o.Amount);
+                break;
+            case "Price":
+                data = data.OrderByDirection(state.SortDirection, o => o.Price);
+                break;
+        }
+
+        pagedData = data.Skip(state.Page * state.PageSize).Take(state.PageSize).ToArray();
+        return new TableData<Product>() {TotalItems = totalItems, Items = pagedData};
+    }
+
+    private void OnSearch(string text)
+    {
+        searchString = text;
+        table.ReloadServerData();
+    }
+}

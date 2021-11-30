@@ -10,6 +10,7 @@ namespace RESTApi.Services.Interfaces
     public interface IRoleService
     {
         Task CreateRoleAsync(Role role);
-        Task RemoveRoleAsync(Role role);
+        Task RemoveRoleAsync(int id);
+        IEnumerable<Role> GetRoles();
     }
 }

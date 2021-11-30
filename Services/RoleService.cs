@@ -25,11 +25,20 @@ namespace RESTApi.Services
                 throw new Exception(result.Errors.FirstOrDefault().ToString());
         }
 
-        public async Task RemoveRoleAsync(Role role)
+        public async Task RemoveRoleAsync(int roleId)
         {
+            var role = await roleManager.FindByIdAsync(roleId.ToString());
+            if (role is null)
+                throw new Exception("No role with the given Id.");
+
             var result = await roleManager.DeleteAsync(role);
             if (!result.Succeeded)
                 throw new Exception(result.Errors.FirstOrDefault().ToString());
+        }
+
+        public IEnumerable<Role> GetRoles()
+        {
+            return roleManager.Roles.ToList();
         }
     }
 }
