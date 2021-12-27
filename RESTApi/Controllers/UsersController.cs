@@ -25,5 +25,23 @@ namespace RESTApi.Controllers
 
             return Ok(user);
         }
+
+        // GET api/<UsersController>
+        [HttpGet]
+        public async Task<ActionResult<User>> GetAsync()
+        {
+            var users = await usersService.GetUsersAsync();
+
+            return Ok(users);
+        }
+
+        // DELETE api/<UsersController>/5
+        [HttpDelete("{id}")]
+        public async Task<ActionResult<User>> DeleteAsync(int id)
+        {
+            await usersService.RemoveUserAsync(id);
+
+            return Ok();
+        }
     }
 }

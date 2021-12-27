@@ -1,7 +1,214 @@
 ﻿@page "/management/users"
 
-<h3>UserManagement</h3>
+@using System.Net.Http.Json
+@inject HttpClient httpClient
 
+<MudGrid Class="pb-4">
+    @if(users is null)
+     {
+         <!--If the products where not loaded yet, display some skeletons-->
+        <MudItem xs="12" sm="6" md="4">
+            <MudPaper  Class="d-flex flex-row pt-6 pb-4" Style="height:100px;">
+                <MudSkeleton SkeletonType="@SkeletonType.Rectangle" Class="mx-4" Width="54px" Height="54px"/>
+                <div>
+                    <MudSkeleton Width="200px"/>
+                    <MudSkeleton Width="40px"/>
+                </div>
+            </MudPaper>
+        </MudItem>
+
+        <MudItem xs="12" sm="6" md="4">
+            <MudPaper  Class="d-flex flex-row pt-6 pb-4" Style="height:100px;">
+                <MudSkeleton SkeletonType="@SkeletonType.Rectangle" Class="mx-4" Width="54px" Height="54px"/>
+                <div>
+                    <MudSkeleton Width="200px"/>
+                    <MudSkeleton Width="40px"/>
+                </div>
+            </MudPaper>
+        </MudItem>
+
+        <MudItem xs="12" sm="6" md="4">
+            <MudPaper  Class="d-flex flex-row pt-6 pb-4" Style="height:100px;">
+                <MudSkeleton SkeletonType="@SkeletonType.Rectangle" Class="mx-4" Width="54px" Height="54px"/>
+                <div>
+                    <MudSkeleton Width="200px"/>
+                    <MudSkeleton Width="40px"/>
+                </div>
+            </MudPaper>
+        </MudItem>
+
+         <!--Setting panel-->
+        <MudItem xs="12" sm="12" md="12">
+             <MudPaper  Class="d-flex flex-row justify-space-around" Style="height:50px;">
+               <MudSkeleton Width="100px"/>
+               <MudSkeleton Width="100px"/>
+               <MudSkeleton Width="100px"/>
+               <MudSkeleton Width="100px"/>
+               <MudSkeleton Width="100px"/>
+             </MudPaper>
+        </MudItem>
+    }
+    else
+    {
+        <MudItem xs="12" sm="6" md="4">
+            <MudPaper  Class="d-flex flex-row pt-6 pb-4" Style="height:100px;">
+                <MudIcon Icon="@Icons.Filled.SupervisedUserCircle" Color="Color.Primary" Class="mx-4" Style="width:54px; height:54px;"></MudIcon>
+                <div>
+                    <MudText Typo="Typo.subtitle1" Class="mud-text-secondary mb-n1">Total Users</MudText>
+                    <MudText Typo="Typo.h5">@(users.Count()) users</MudText>
+                </div>
+            </MudPaper>
+        </MudItem>
+        <MudItem xs="12" sm="6" md="4">
+            <MudPaper  Class="d-flex flex-row pt-6 pb-4" Style="height:100px;">
+                <MudIcon Icon="@Icons.Material.Filled.Public" Color="Color.Success" Class="mx-4" Style="width:54px; height:54px;"></MudIcon>
+                <div>
+                    <MudText Typo="Typo.subtitle1" Class="mud-text-secondary mb-n1">Online Users</MudText>
+                    <MudText Typo="Typo.h5">To be implemented</MudText>
+                </div>
+            </MudPaper>
+        </MudItem>
+        <MudItem xs="12" sm="6" md="4">
+            <MudPaper  Class="d-flex flex-row pt-6 pb-4" Style="height:100px;">
+                <MudIcon Icon="@Icons.Filled.Error" Color="Color.Warning" Class="mx-4" Style="width:54px; height:54px;"></MudIcon>
+                <div>
+                    <MudText Typo="Typo.subtitle1" Class="mud-text-secondary mb-n1">No confirmed Email</MudText>
+                    <MudText Typo="Typo.h5">@(users.Where(u=>u.EmailConfirmed is false).Count()) users</MudText>
+                </div>
+            </MudPaper>
+        </MudItem>
+
+         <!--Setting panel-->
+        <MudItem xs="12" sm="12" md="12">
+             <MudPaper  Class="d-flex flex-row" Style="height:50px;">
+                <MudButton StartIcon="@Icons.Filled.ExposurePlus1" Link="/management/products/new-category" Variant="Variant.Text" >Create</MudButton>
+                <MudButton StartIcon="@Icons.Filled.RestoreFromTrash" OnClick="RemoveSelectedCategories" Variant="Variant.Text" >Remove</MudButton>
+                <MudButton StartIcon="@Icons.Filled.Refresh" OnClick="LoadUsers" Variant="Variant.Text" >Refresh</MudButton>
+                <MudButton StartIcon="@Icons.Filled.Download" OnClick="DownloadAsCSV" Variant="Variant.Text" >Export to CSV</MudButton>
+             </MudPaper>
+        </MudItem>
+    }
+</MudGrid>
+
+<MudTable ServerData="@(new Func<TableState, Task<TableData<User>>>(ServerReload))" SortLabel="Sort By" Dense="true" Hover=@hover @ref="table" @bind-SelectedItems="selectedItems" MultiSelection=@multiSelect
+          Loading="@loading">
+    <ToolBarContent>
+        <MudText Typo="Typo.h6">
+            Users
+            <MudIconButton Icon="@Icons.Filled.ExposurePlus1" Link="/authentication/register"></MudIconButton>
+        </MudText>
+        <MudSpacer />
+        <MudTextField T="string" ValueChanged="@(s=>OnSearch(s))" Placeholder="Search" Adornment="Adornment.Start"
+                      AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+    </ToolBarContent>
+    <HeaderContent>
+        <MudTh><MudTableSortLabel SortBy="new Func<User, object>(x=>x.Id)">Nr</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortBy="new Func<User, object>(x=>x.FirstName)">First Name</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortBy="new Func<User, object>(x=>x.LastName)">Last Name</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortBy="new Func<User, object>(x=>x.Email)">Email</MudTableSortLabel></MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd DataLabel="Id">@context.Id</MudTd>
+        <MudTd DataLabel="FirstName">@context.FirstName</MudTd>
+        <MudTd DataLabel="LastName">@context.LastName</MudTd>
+        <MudTd DataLabel="Email">@context.Email</MudTd>
+    </RowTemplate>
+    <NoRecordsContent>
+        <MudText>No matching records found</MudText>
+    </NoRecordsContent>
+    <LoadingContent>
+        <MudText>Loading...</MudText>
+    </LoadingContent>
+    <PagerContent>
+        <MudTablePager />
+    </PagerContent>
+</MudTable>
 @code {
+    [Inject] public IUsersService UsersService{ get; set; }
 
+    private IEnumerable<User> users;
+    private IEnumerable<User> pagedData;
+    private MudTable<User> table;
+
+    private int totalItems;
+    private string searchString = null;
+    private bool hover = true;
+    private bool multiSelect = true;
+    private bool loading = false;
+
+    private HashSet<User> selectedItems = new HashSet<User>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        users = await UsersService.GetUsersAsync();
+    }
+
+    /// <summary>
+    /// Here we simulate getting the paged, filtered and ordered data from the server
+    /// </summary>
+    private async Task<TableData<User>> ServerReload(TableState state)
+    {
+        await LoadUsers();
+
+        IEnumerable<User> data = users;
+        data = data.Where(element =>
+        {
+            if (string.IsNullOrWhiteSpace(searchString))
+                return true;
+            if (element.FirstName.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+                return true;
+            if (element.LastName.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+                return true;
+            return false;
+        }).ToArray();
+        totalItems = data.Count();
+        switch (state.SortLabel)
+        {
+            case "Id":
+                data = data.OrderByDirection(state.SortDirection, o => o.Id);
+                break;
+            case "First Name":
+                data = data.OrderByDirection(state.SortDirection, o => o.FirstName);
+                break;
+            case "Last Name":
+                data = data.OrderByDirection(state.SortDirection, o => o.LastName);
+                break;
+            case "Email":
+                data = data.OrderByDirection(state.SortDirection, o => o.Email);
+                break;
+        }
+
+        pagedData = data.Skip(state.Page * state.PageSize).Take(state.PageSize).ToArray();
+        return new TableData<User>() {TotalItems = totalItems, Items = pagedData};
+    }
+    
+    private async Task RemoveSelectedCategories()
+    {
+        if(selectedItems.Any())
+        {
+            foreach(var item in selectedItems)
+            {
+                await UsersService.RemoveUserAsync(item.Id);
+            }
+            await table.ReloadServerData();
+        }
+    }
+
+    private async void OnSearch(string text)
+    {
+        searchString = text;
+        await table.ReloadServerData();
+    }
+
+    private async Task LoadUsers()
+    {
+        loading = true;
+        users = await UsersService.GetUsersAsync();
+        loading = false;
+    }
+
+    private async Task DownloadAsCSV()
+    {
+        //TODO
+    }
 }

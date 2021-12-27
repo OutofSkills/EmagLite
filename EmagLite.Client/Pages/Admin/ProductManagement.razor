@@ -1,22 +1,111 @@
 ﻿@page "/management/products"
 
 @using System.Net.Http.Json
-@inject HttpClient httpClient
 
-<MudTable ServerData="@(new Func<TableState, Task<TableData<Product>>>(ServerReload))"
-          Dense="true" Hover="true" @ref="table">
+<MudGrid Class="pb-4">
+    @if(products is null)
+     {
+         <!--If the products where not loaded yet, display some skeletons-->
+        <MudItem xs="12" sm="6" md="4">
+            <MudPaper  Class="d-flex flex-row pt-6 pb-4" Style="height:100px;">
+                <MudSkeleton SkeletonType="@SkeletonType.Rectangle" Class="mx-4" Width="54px" Height="54px"/>
+                <div>
+                    <MudSkeleton Width="200px"/>
+                    <MudSkeleton Width="40px"/>
+                </div>
+            </MudPaper>
+        </MudItem>
+
+        <MudItem xs="12" sm="6" md="4">
+            <MudPaper  Class="d-flex flex-row pt-6 pb-4" Style="height:100px;">
+                <MudSkeleton SkeletonType="@SkeletonType.Rectangle" Class="mx-4" Width="54px" Height="54px"/>
+                <div>
+                    <MudSkeleton Width="200px"/>
+                    <MudSkeleton Width="40px"/>
+                </div>
+            </MudPaper>
+        </MudItem>
+
+        <MudItem xs="12" sm="6" md="4">
+            <MudPaper  Class="d-flex flex-row pt-6 pb-4" Style="height:100px;">
+                <MudSkeleton SkeletonType="@SkeletonType.Rectangle" Class="mx-4" Width="54px" Height="54px"/>
+                <div>
+                    <MudSkeleton Width="200px"/>
+                    <MudSkeleton Width="40px"/>
+                </div>
+            </MudPaper>
+        </MudItem>
+
+        <!--Setting panel-->
+        <MudItem xs="12" sm="12" md="12">
+             <MudPaper  Class="d-flex flex-row justify-space-around" Style="height:50px;">
+               <MudSkeleton Width="100px"/>
+               <MudSkeleton Width="100px"/>
+               <MudSkeleton Width="100px"/>
+               <MudSkeleton Width="100px"/>
+               <MudSkeleton Width="100px"/>
+             </MudPaper>
+        </MudItem>
+    }
+    else
+    {
+        <MudItem xs="12" sm="6" md="4">
+            <MudPaper  Class="d-flex flex-row pt-6 pb-4" Style="height:100px;">
+                <MudIcon Icon="@Icons.Filled.AppSettingsAlt" Color="Color.Primary" Class="mx-4" Style="width:54px; height:54px;"></MudIcon>
+                <div>
+                    <MudText Typo="Typo.subtitle1" Class="mud-text-secondary mb-n1">Product Stock</MudText>
+                    <MudText Typo="Typo.h5">@(products.Sum(p=>p.Amount)) pieces</MudText>
+                </div>
+            </MudPaper>
+        
+        </MudItem>
+        <MudItem xs="12" sm="6" md="4">
+            <MudPaper  Class="d-flex flex-row pt-6 pb-4" Style="height:100px;">
+                <MudIcon Icon="@Icons.Material.Filled.ShoppingBag" Color="Color.Success" Class="mx-4" Style="width:54px; height:54px;"></MudIcon>
+                <div>
+                    <MudText Typo="Typo.subtitle1" Class="mud-text-secondary mb-n1">Sold Products</MudText>
+                    <MudText Typo="Typo.h5">To be implemented</MudText>
+                </div>
+            </MudPaper>
+        </MudItem>
+        <MudItem xs="12" sm="6" md="4">
+            <MudPaper  Class="d-flex flex-row pt-6 pb-4" Style="height:100px;">
+                <MudIcon Icon="@Icons.Filled.Error" Color="Color.Warning" Class="mx-4" Style="width:54px; height:54px;"></MudIcon>
+                <div>
+                    <MudText Typo="Typo.subtitle1" Class="mud-text-secondary mb-n1">Out of stock</MudText>
+                    <MudText Typo="Typo.h5">@(products.Where(p => p.Amount == 0).Count()) products</MudText>
+                </div>
+            </MudPaper>
+        </MudItem>
+
+        <!--Setting panel-->
+        <MudItem xs="12" sm="12" md="12">
+             <MudPaper  Class="d-flex flex-row" Style="height:50px;">
+                <MudButton StartIcon="@Icons.Filled.ExposurePlus1" Link="/management/products/new-product" Variant="Variant.Text" >Create</MudButton>
+                <MudButton StartIcon="@Icons.Filled.RestoreFromTrash" OnClick="RemoveSelectedProducts" Variant="Variant.Text" >Remove</MudButton>
+                <MudButton StartIcon="@Icons.Filled.Refresh" OnClick="LoadProducts" Variant="Variant.Text" >Refresh</MudButton>
+                <MudButton StartIcon="@Icons.Filled.Download" OnClick="DownloadAsCSV" Variant="Variant.Text" >Export to CSV</MudButton>
+             </MudPaper>
+        </MudItem>
+    }
+</MudGrid>
+
+<MudTable ServerData="@(new Func<TableState, Task<TableData<Product>>>(ReloadProducts))" SortLabel="Sort By" Dense="true" Hover=@hover @ref="table" @bind-SelectedItems="selectedItems" MultiSelection=@multiSelect
+          CanCancelEdit="@canCancelEdit" RowEditPreview="BackupItem" RowEditCancel="ResetItemToOriginalValues" RowEditCommit="EditItem" Loading="@loading">
     <ToolBarContent>
-        <MudText Typo="Typo.h6">Products</MudText>
+        <MudText Typo="Typo.h6">
+            Products
+        </MudText>
         <MudSpacer />
         <MudTextField T="string" ValueChanged="@(s=>OnSearch(s))" Placeholder="Search" Adornment="Adornment.Start"
                       AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
     </ToolBarContent>
     <HeaderContent>
-        <MudTh><MudTableSortLabel SortLabel="Id" T="Product">Id</MudTableSortLabel></MudTh>
-        <MudTh><MudTableSortLabel SortLabel="Brand" T="Product">Brand</MudTableSortLabel></MudTh>
-        <MudTh><MudTableSortLabel SortLabel="Name" T="Product">Name</MudTableSortLabel></MudTh>
-        <MudTh><MudTableSortLabel SortLabel="Amount" T="Product">Amount</MudTableSortLabel></MudTh>
-        <MudTh><MudTableSortLabel SortLabel="Price" T="Product">Price</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortBy="new Func<Product, object>(x=>x.Id)">Nr</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortBy="new Func<Product, object>(x=>x.Brand)">Brand</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortBy="new Func<Product, object>(x=>x.Name)">Name</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortBy="new Func<Product, object>(x=>x.Amount)">Amount</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortBy="new Func<Product, object>(x=>x.Price)">Price</MudTableSortLabel></MudTh>
     </HeaderContent>
     <RowTemplate>
         <MudTd DataLabel="Id">@context.Id</MudTd>
@@ -25,6 +114,21 @@
         <MudTd DataLabel="Amount">@context.Amount</MudTd>
         <MudTd DataLabel="Price">@context.Price</MudTd>
     </RowTemplate>
+    <RowEditingTemplate>
+        <MudTd DataLabel="Id">@context.Id</MudTd>
+        <MudTd DataLabel="Brand">
+            <MudTextField @bind-Value="@context.Brand" Required />
+        </MudTd>
+        <MudTd DataLabel="Name">
+            <MudTextField @bind-Value="@context.Name" Required />
+        </MudTd>
+        <MudTd DataLabel="Amount">
+            <MudNumericField @bind-Value="@context.Amount" Required Min="1" />
+        </MudTd>
+        <MudTd DataLabel="Price">
+            <MudTextField @bind-Value="@context.Price" min="0" step=".01" Required />
+        </MudTd>
+    </RowEditingTemplate>
     <NoRecordsContent>
         <MudText>No matching records found</MudText>
     </NoRecordsContent>
@@ -36,19 +140,36 @@
     </PagerContent>
 </MudTable>
 @code {
+    [Inject] public IProductsService ProductsService{ get; set; }
+
+    private IEnumerable<Product> products;
     private IEnumerable<Product> pagedData;
     private MudTable<Product> table;
 
     private int totalItems;
     private string searchString = null;
+    private bool hover = true;
+    private bool multiSelect = true;
+    private bool canCancelEdit = true;
+    private bool loading = false;
+
+    private HashSet<Product> selectedItems = new HashSet<Product>();
+    private Product productBeforeEdit;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadProducts();
+    }
 
     /// <summary>
     /// Here we simulate getting the paged, filtered and ordered data from the server
     /// </summary>
-    private async Task<TableData<Product>> ServerReload(TableState state)
+    private async Task<TableData<Product>> ReloadProducts(TableState state)
     {
-        IEnumerable<Product> data = await httpClient.GetFromJsonAsync<List<Product>>("https://localhost:44351/api/Products");
-        data = data.Where(element =>
+
+        await LoadProducts();
+
+        products = products.Where(element =>
         {
             if (string.IsNullOrWhiteSpace(searchString))
                 return true;
@@ -58,33 +179,82 @@
                 return true;
             return false;
         }).ToArray();
-        totalItems = data.Count();
+        totalItems = products.Count();
         switch (state.SortLabel)
         {
             case "Id":
-                data = data.OrderByDirection(state.SortDirection, o => o.Id);
+                products = products.OrderByDirection(state.SortDirection, o => o.Id);
                 break;
             case "Brand":
-                data = data.OrderByDirection(state.SortDirection, o => o.Brand);
+                products = products.OrderByDirection(state.SortDirection, o => o.Brand);
                 break;
             case "Name":
-                data = data.OrderByDirection(state.SortDirection, o => o.Name);
+                products = products.OrderByDirection(state.SortDirection, o => o.Name);
                 break;
             case "Amount":
-                data = data.OrderByDirection(state.SortDirection, o => o.Amount);
+                products = products.OrderByDirection(state.SortDirection, o => o.Amount);
                 break;
             case "Price":
-                data = data.OrderByDirection(state.SortDirection, o => o.Price);
+                products = products.OrderByDirection(state.SortDirection, o => o.Price);
                 break;
         }
 
-        pagedData = data.Skip(state.Page * state.PageSize).Take(state.PageSize).ToArray();
+        pagedData = products.Skip(state.Page * state.PageSize).Take(state.PageSize).ToArray();
         return new TableData<Product>() {TotalItems = totalItems, Items = pagedData};
     }
 
-    private void OnSearch(string text)
+    private async Task RemoveSelectedProducts()
+    {
+        if(selectedItems.Any())
+        {
+            foreach(var item in selectedItems)
+            {
+                await ProductsService.RemoveProductAsync(item.Id);
+            }
+            await table.ReloadServerData();
+        }
+    }
+
+    private async void EditItem(object item)
+    {
+        await ProductsService.EditProductAsync((Product)item);
+        await table.ReloadServerData();
+    }
+
+    private void BackupItem(object element)
+    {
+        productBeforeEdit = new()
+        {            
+            Brand = ((Product)element).Brand,
+            Name = ((Product)element).Name,
+            Amount = ((Product)element).Amount,
+            Price = ((Product)element).Price
+        };
+    }
+
+    private void ResetItemToOriginalValues(object element)
+    {
+        ((Product)element).Brand = productBeforeEdit.Brand;
+        ((Product)element).Name = productBeforeEdit.Name;
+        ((Product)element).Amount = productBeforeEdit.Amount;
+        ((Product)element).Price = productBeforeEdit.Price;
+    }
+
+    private async void OnSearch(string text)
     {
         searchString = text;
-        table.ReloadServerData();
+        await table.ReloadServerData();
+    }
+
+    private async Task LoadProducts()
+    {
+        loading = true;
+        products = await ProductsService.GetProductsAsync();
+        loading = false;
+    }
+
+    private async Task DownloadAsCSV()
+    {
+        //TODO
     }
 }

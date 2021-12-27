@@ -10,5 +10,7 @@ namespace RESTApi.Services.Interfaces
     public interface IUsersService
     {
         Task<User> GetUserAsync(int id);
+        Task<IEnumerable<User>> GetUsersAsync();
+        Task RemoveUserAsync(int id);
     }
 }

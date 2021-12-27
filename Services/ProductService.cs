@@ -43,8 +43,15 @@ namespace RESTApi.Services
 
         public async Task RemoveProductAsync(int productId)
         {
-            await unitOfWork.ProductRepository.Delete(productId);
-            unitOfWork.SaveChanges();
+            try
+            {
+                await unitOfWork.ProductRepository.Delete(productId);
+                unitOfWork.SaveChanges();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.InnerException.Message);
+            }
         }
 
         public async Task EditProductAsync(int id, Product product)
@@ -52,16 +59,11 @@ namespace RESTApi.Services
             if (product is null)
                 throw new Exception("The product object was null.");
 
-            var existingProduct = await unitOfWork.ProductRepository.GetById(id);
-            if (existingProduct is null)
-                throw new Exception("No existing product with the given Id.");
-
             var productCategory = await unitOfWork.CategoryRepository.GetById(product.CategoryId);
             if (productCategory is null)
                 throw new Exception("The selected product category doesn't exist.");
 
-            // Set the id for the product to update. Idk how correct is this thing
-            product.Id = id;
+            product.Category = productCategory;
 
             unitOfWork.ProductRepository.Update(product);
             unitOfWork.SaveChanges();

@@ -24,5 +24,18 @@ namespace RESTApi.Services
 
             return user;
         }
+
+        public async Task<IEnumerable<User>> GetUsersAsync()
+        {
+            var users = await unitOfWork.UsersRepository.GetAll();
+
+            return users;
+        }
+
+        public async Task RemoveUserAsync(int id)
+        {
+            await unitOfWork.UsersRepository.Delete(id);
+            unitOfWork.SaveChanges();
+        }
     }
 }

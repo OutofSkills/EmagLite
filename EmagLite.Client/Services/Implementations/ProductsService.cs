@@ -38,6 +38,20 @@ namespace EmagLite.Client.Services.Implementations
             throw new System.NotImplementedException();
         }
 
+        public async Task EditProductAsync(Product product)
+        {
+
+            // Serialize the object to JSON format to send it in body request
+            var requestContent = SerializeObject(product);
+            var responseMessage = await httpClient.PutAsync(UriBase + $"/api/Products/{product.Id}", requestContent);
+
+            if (!responseMessage.IsSuccessStatusCode)
+            {
+                var errorMessage = responseMessage.ReasonPhrase;
+                throw new Exception($"There was an error! {errorMessage}");
+            }
+        }
+
         public async Task<IEnumerable<Product>> GetProductsAsync()
         {
             var responseMessage = await httpClient.GetAsync(UriBase + "/api/Products");
@@ -55,9 +69,15 @@ namespace EmagLite.Client.Services.Implementations
             return products;
         }
 
-        public Task RemoveProductAsync(int productId)
+        public async Task RemoveProductAsync(int productId)
         {
-            throw new System.NotImplementedException();
+            var responseMessage = await httpClient.DeleteAsync(UriBase + $"/api/Products/{productId}");
+
+            if (!responseMessage.IsSuccessStatusCode)
+            {
+                var errorMessage = responseMessage.ReasonPhrase;
+                throw new Exception($"There was an error! {errorMessage}");
+            }
         }
 
         private StringContent SerializeObject(Product product)

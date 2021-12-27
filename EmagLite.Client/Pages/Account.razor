@@ -12,21 +12,45 @@
                 <MudCard >
                     <MudCardHeader>
                         <CardHeaderContent>
-                            <MudText>Public Profile</MudText>
+                            <MudText>Profile</MudText>
                         </CardHeaderContent>
                     </MudCardHeader>
                     <MudCardContent>
                         <div class="d-flex justify-center mb-4">
-                            <MudAvatar Image="@AvatarImageLink" Style="height:100px; width:100px;">
-                                @if(AvatarImageLink == null)
+                            @if(LoggedInUser is null)
+                            {
+
+                            }
+                            else
+                            {
+                                @if(LoggedInUser.Avatar is null)
                                 {
-                                    <MudIcon Icon="@AvatarIcon" Size="Size.Large"></MudIcon>
+                                    <MudAvatar Style="height:100px; width:100px;">
+                                       <MudIcon Icon="@AvatarIcon" Size="Size.Large"></MudIcon>
+                                    </MudAvatar>
                                 }
-                            </MudAvatar>
+                                else
+                                {  
+                                    <MudAvatar Image=@string.Format("data:image/svg+xml+jpg+jpeg;base64,{0}", Convert.ToBase64String(LoggedInUser.Avatar)) Style="height:100px; width:100px;" />
+                                }
+                            
+                            }
                                 
                         </div>
-                        <MudText Align="Align.Center">@FirstName @LastName</MudText>
-                        <MudText Align="Align.Center">@JobTitle</MudText>
+                        @if(LoggedInUser is null)
+                        {
+                            <MudAvatar Style="height:100px; width:100px;">
+                                       <MudSkeleton SkeletonType="@SkeletonType.Circle" Height="100px" Width="100px" />
+                            </MudAvatar>
+
+                            <MudSkeleton Width="100px"/>
+                            <MudSkeleton Width="50px"/>
+                        }
+                        else
+                        {
+                            <MudText Align="Align.Center">@LoggedInUser.FirstName @LoggedInUser.LastName</MudText>
+                            <MudText Align="Align.Center">Not implemented</MudText>
+                        }
                     </MudCardContent>
                     <MudCardActions Class="d-flex justify-center">
                         <MudButton OnClick="DeletePicture" Color="@AvatarButtonColor">@AvatarButtonText</MudButton>
@@ -41,29 +65,62 @@
                         </CardHeaderContent>
                     </MudCardHeader>
                     <MudCardContent>
-                        <MudGrid>
-                            <MudItem xs="12" md="6">
-                                <MudTextField @bind-Value="FirstName" Label="First Name" Variant="Variant.Outlined" />
-                            </MudItem>
-                            <MudItem xs="12" md="6">
-                                <MudTextField @bind-Value="LastName" Label="First Name" Variant="Variant.Outlined" />
-                            </MudItem>
-                            <MudItem xs="12" md="6">
-                                <MudTextField @bind-Value="JobTitle" Label="Job Title" Variant="Variant.Outlined" />
-                            </MudItem>
-                            <MudItem xs="12" md="6">
-                                <MudTextField @bind-Value="Email" Label="Email" Variant="Variant.Outlined" HelperText="Dont worry, we shall not spam!" InputType="InputType.Email" />
-                            </MudItem>
-                            <MudItem xs="12">
-                                <MudText>
-                                    <b>Visible Only To Friends</b>
-                                </MudText>
-                                <MudText Typo="Typo.body2">
-                                    Means that only your friends will be able to see your contact details.
-                                </MudText>
-                                <MudSwitch @bind-Checked="@FriendSwitch" Color="Color.Secondary" />
-                            </MudItem>
-                        </MudGrid>
+                        
+                            @if(LoggedInUser is null)
+                            {
+                                <MudGrid>
+                                    <MudItem xs="12" md="6">
+                                       <MudSkeleton Width="100px" />
+                                    </MudItem>
+                                    <MudItem xs="12" md="6">
+                                        <MudSkeleton Width="100px" />
+                                    </MudItem>
+                                    <MudItem xs="12" md="6">
+                                        <MudSkeleton Width="100px" />
+                                    </MudItem>
+                                    <MudItem xs="12" md="6">
+                                        <MudSkeleton Width="100px" />
+                                    </MudItem>
+                                    <MudItem xs="12">
+                                        <MudSkeleton Width="100px" />    
+                                        <MudSwitch @bind-Checked="@FriendSwitch" Color="Color.Secondary" />
+                                    </MudItem>
+                                </MudGrid>
+                            }
+                            else
+                            {
+                                <EditForm Model="LoggedInUser" OnValidSubmit="OnValidSubmit">
+                                    <MudGrid>
+                                        <MudItem xs="12" md="6">
+                                        <MudTextField Label="First Name"
+                                                    @bind-Value="LoggedInUser.FirstName" For="@(() => LoggedInUser.FirstName)" Variant="Variant.Outlined" />
+                                        </MudItem>
+                                        <MudItem xs="12" md="6">
+                                                <MudTextField Label="Last Name"
+                                                        @bind-Value="LoggedInUser.LastName" For="@(() => LoggedInUser.LastName)" Variant="Variant.Outlined" />
+                                        </MudItem>
+                                        <MudItem xs="12" md="6">
+                                                <MudTextField Label="Username"
+                                                        @bind-Value="LoggedInUser.UserName" For="@(() => LoggedInUser.UserName)" Variant="Variant.Outlined" />
+                                        </MudItem>
+                                        <MudItem xs="12" md="6">
+                                                <MudTextField Label="Email"
+                                                        @bind-Value="LoggedInUser.Email" For="@(() => LoggedInUser.Email)" HelperText="Dont worry, we shall not spam!" InputType="InputType.Email"
+                                                        Variant="Variant.Outlined" />
+                               
+                                        </MudItem>
+                                        <MudItem xs="12">
+                                            <MudText>
+                                                <b>Visible Only To Friends</b>
+                                            </MudText>
+                                            <MudText Typo="Typo.body2">
+                                                Means that only your friends will be able to see your contact details.
+                                            </MudText>
+                                            <MudSwitch @bind-Checked="@FriendSwitch" Color="Color.Secondary" />
+                                        </MudItem>
+                                    </MudGrid>
+                                </EditForm>
+                             }
                     </MudCardContent>
                     <MudCardActions Class="pb-4 pl-4">
                         <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto" @onclick="@(() => SaveChanges("Profile details saved", Severity.Success))">Save Changes</MudButton>
@@ -146,14 +203,16 @@
 </MudTabs>
 
 @code {
+    [Inject] public AuthenticationStateProvider AuthStateProvider{ get; set; }
+
+    [Inject] public IUsersService UsersService{ get; set; }
+
+    public User LoggedInUser;
+
     public string AvatarImageLink { get; set; } = "images/avatar_jonny.jpg";
     public string AvatarIcon { get; set; }
     public string AvatarButtonText { get; set; } = "Delete Picture";
     public Color AvatarButtonColor { get; set; } = Color.Error;
-    public string FirstName { get; set; } = "Jonny";
-    public string LastName { get; set; } = "Larsson";
-    public string JobTitle { get; set; } = "IT Consultant";
-    public string Email { get; set; } = "Youcanprobably@findout.com";
     public bool FriendSwitch { get; set; } = true;
     public bool NotificationEmail_1 { get; set; } = true;
     public bool NotificationEmail_2 { get; set; }
@@ -163,6 +222,14 @@
     public bool NotificationChat_2 { get; set; } = true;
     public bool NotificationChat_3 { get; set; } = true;
     public bool NotificationChat_4 { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var userId = await GetLoggedUserId();
+        if(userId is 0) { throw new Exception("Not authenticated user."); }
+
+        LoggedInUser = await UsersService.GetUserAsync(userId);
+    }
 
     void DeletePicture()
     {
@@ -177,6 +244,10 @@
         {
             return;
         }
+    }
+    private void OnValidSubmit()
+    {
+        //ToDo
     }
 
     void SaveChanges(string message, Severity severity)
@@ -212,5 +283,18 @@
         if (pwField1.Value != arg)
             return "Passwords don't match";
         return null;
+    }
+
+    private async Task<int> GetLoggedUserId()
+    {
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        if (authState.User.Identity.IsAuthenticated)
+        {
+            var userId = authState.User.FindFirst(ClaimTypes.NameIdentifier).Value;
+
+            return int.Parse(userId);
+        }
+
+        return 0;
     }
 } 

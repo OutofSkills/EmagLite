@@ -33,9 +33,15 @@ namespace EmagLite.Client.Services.Implementations
             }
         }
 
-        public Task DeleteCategoryAsync(int idCategory)
+        public async Task RemoveCategoryAsync(int idCategory)
         {
-            throw new System.NotImplementedException();
+            var responseMessage = await httpClient.DeleteAsync(UriBase + $"/api/Categories/{idCategory}");
+
+            if (!responseMessage.IsSuccessStatusCode)
+            {
+                var errorMessage = responseMessage.ReasonPhrase;
+                throw new Exception($"There was an error! {errorMessage}");
+            }
         }
 
         public async Task<IEnumerable<Category>> GetCategoriesAsync()
@@ -60,6 +66,19 @@ namespace EmagLite.Client.Services.Implementations
             var requestContent = new StringContent(serializedProduct, Encoding.UTF8, "application/json");
 
             return requestContent;
+        }
+
+        public async Task EditCategoryAsync(Category category)
+        {
+            // Serialize the object to JSON format to send it in body request
+            var requestContent = SerializeObject(category);
+            var responseMessage = await httpClient.PutAsync(UriBase + $"/api/Categories/{category.Id}", requestContent);
+
+            if (!responseMessage.IsSuccessStatusCode)
+            {
+                var errorMessage = responseMessage.ReasonPhrase;
+                throw new Exception($"There was an error! {errorMessage}");
+            }
         }
     }
 }

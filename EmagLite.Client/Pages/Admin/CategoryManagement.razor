@@ -1,7 +1,225 @@
 ﻿@page "/management/categories"
 
-<h3>CategoryManagement</h3>
+@using System.Net.Http.Json
+@inject HttpClient httpClient
 
+<MudGrid Class="pb-4">
+    @if(categories is null)
+     {
+         <!--If the categories where not loaded yet, display some skeletons-->
+        <MudItem xs="12" sm="6" md="6">
+            <MudPaper  Class="d-flex flex-row pt-6 pb-4" Style="height:100px;">
+                <MudSkeleton SkeletonType="@SkeletonType.Rectangle" Class="mx-4" Width="54px" Height="54px"/>
+                <div>
+                    <MudSkeleton Width="200px"/>
+                    <MudSkeleton Width="40px"/>
+                </div>
+            </MudPaper>
+        </MudItem>
+
+        <MudItem xs="12" sm="6" md="6">
+            <MudPaper  Class="d-flex flex-row pt-6 pb-4" Style="height:100px;">
+                <MudSkeleton SkeletonType="@SkeletonType.Rectangle" Class="mx-4" Width="54px" Height="54px"/>
+                <div>
+                    <MudSkeleton Width="200px"/>
+                    <MudSkeleton Width="40px"/>
+                </div>
+            </MudPaper>
+        </MudItem>
+
+         <!--Setting panel-->
+        <MudItem xs="12" sm="12" md="12">
+             <MudPaper  Class="d-flex flex-row justify-space-around" Style="height:50px;">
+               <MudSkeleton Width="100px"/>
+               <MudSkeleton Width="100px"/>
+               <MudSkeleton Width="100px"/>
+               <MudSkeleton Width="100px"/>
+               <MudSkeleton Width="100px"/>
+             </MudPaper>
+        </MudItem>
+
+    }
+    else
+    {
+        <MudItem xs="12" sm="6" md="6">
+            <MudPaper  Class="d-flex flex-row pt-6 pb-4" Style="height:100px;">
+                <MudIcon Icon="@Icons.Material.Filled.DoneOutline" Color="Color.Success" Class="mx-4" Style="width:54px; height:54px;"></MudIcon>
+                <div>
+                    <MudText Typo="Typo.subtitle1" Class="mud-text-secondary mb-n1">Enabled Categories</MudText>
+                    <MudText Typo="Typo.h5">@(categories.Where(c=>c.IsEnabled is true).Count())</MudText>
+                </div>
+            </MudPaper>
+        </MudItem>
+        <MudItem xs="12" sm="6" md="6">
+            <MudPaper  Class="d-flex flex-row pt-6 pb-4" Style="height:100px;">
+                <MudIcon Icon="@Icons.Material.Filled.ImageNotSupported" Color="Color.Warning" Class="mx-4" Style="width:54px; height:54px;"></MudIcon>
+                <div>
+                    <MudText Typo="Typo.subtitle1" Class="mud-text-secondary mb-n1">Disabled Categories</MudText>
+                    <MudText Typo="Typo.h5">@(categories.Where(c=>c.IsEnabled is false).Count())</MudText>
+                </div>
+            </MudPaper>
+        </MudItem>
+
+         <!--Setting panel-->
+        <MudItem xs="12" sm="12" md="12">
+             <MudPaper  Class="d-flex flex-row" Style="height:50px;">
+                <MudButton StartIcon="@Icons.Filled.ExposurePlus1" Link="/management/products/new-category" Variant="Variant.Text" >Create</MudButton>
+                <MudButton StartIcon="@Icons.Filled.RestoreFromTrash" OnClick="RemoveSelectedCategories" Variant="Variant.Text" >Remove</MudButton>
+                <MudButton StartIcon="@Icons.Filled.Refresh" OnClick="LoadCategories" Variant="Variant.Text" >Refresh</MudButton>
+                <MudButton StartIcon="@Icons.Filled.Download" OnClick="DownloadAsCSV" Variant="Variant.Text" >Export to CSV</MudButton>
+             </MudPaper>
+        </MudItem>
+    }
+</MudGrid>
+
+<MudTable ServerData="@(new Func<TableState, Task<TableData<Category>>>(ReloadCategories))" SortLabel="Sort By" Dense="true" Hover=@hover @ref="table" @bind-SelectedItems="selectedItems" MultiSelection=@multiSelect
+          CanCancelEdit="@canCancelEdit" RowEditPreview="BackupItem" RowEditCancel="ResetItemToOriginalValues" RowEditCommit="EditItem" Loading="@loading">
+    <ToolBarContent>
+        <MudText Typo="Typo.h6">
+            Categories
+            <MudIconButton Icon="@Icons.Filled.ExposurePlus1" Link="/management/products/new-category"></MudIconButton>
+        </MudText>
+        <MudSpacer />
+        <MudTextField T="string" ValueChanged="@(s=>OnSearch(s))" Placeholder="Search" Adornment="Adornment.Start"
+                      AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+    </ToolBarContent>
+    <HeaderContent>
+        <MudTh><MudTableSortLabel SortBy="new Func<Category, object>(x=>x.Id)">Nr</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortBy="new Func<Category, object>(x=>x.Name)">Name</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortBy="new Func<Category, object>(x=>x.Description)">Description</MudTableSortLabel></MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd DataLabel="Id">@context.Id</MudTd>
+        <MudTd DataLabel="Name">@context.Name</MudTd>
+        <MudTd DataLabel="Description">@context.Description</MudTd>
+    </RowTemplate>
+    <RowEditingTemplate>
+        <MudTd DataLabel="Id">@context.Id</MudTd>
+        <MudTd DataLabel="Name">
+            <MudTextField @bind-Value="@context.Name" Required />
+        </MudTd>
+        <MudTd DataLabel="Description">
+            <MudTextField @bind-Value="@context.Description" Required />
+        </MudTd>
+    </RowEditingTemplate>
+    <NoRecordsContent>
+        <MudText>No matching records found</MudText>
+    </NoRecordsContent>
+    <LoadingContent>
+        <MudText>Loading...</MudText>
+    </LoadingContent>
+    <PagerContent>
+        <MudTablePager />
+    </PagerContent>
+</MudTable>
 @code {
+    [Inject] public ICategoriesService CategoriesService{ get; set; }
 
+    private IEnumerable<Category> categories;
+    private IEnumerable<Category> pagedData;
+    private MudTable<Category> table;
+
+    private int totalItems;
+    private string searchString = null;
+    private bool hover = true;
+    private bool multiSelect = true;
+    private bool canCancelEdit = true;
+    private bool loading = false;
+
+    private HashSet<Category> selectedItems = new HashSet<Category>();
+    private Category categoryBeforeEdit;
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        categories = await CategoriesService.GetCategoriesAsync();
+    }
+
+    /// <summary>
+    /// Here we simulate getting the paged, filtered and ordered data from the server
+    /// </summary>
+    private async Task<TableData<Category>> ReloadCategories(TableState state)
+    {
+        await LoadCategories();
+
+        IEnumerable<Category> data = categories;
+        data = data.Where(element =>
+        {
+            if (string.IsNullOrWhiteSpace(searchString))
+                return true;
+            if (element.Description.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+                return true;
+            if (element.Name.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+                return true;
+            return false;
+        }).ToArray();
+        totalItems = data.Count();
+        switch (state.SortLabel)
+        {
+            case "Id":
+                data = data.OrderByDirection(state.SortDirection, o => o.Id);
+                break;
+            case "Name":
+                data = data.OrderByDirection(state.SortDirection, o => o.Name);
+                break;
+            case "Description":
+                data = data.OrderByDirection(state.SortDirection, o => o.Description);
+                break;
+        }
+
+        pagedData = data.Skip(state.Page * state.PageSize).Take(state.PageSize).ToArray();
+        return new TableData<Category>() {TotalItems = totalItems, Items = pagedData};
+    }
+
+
+    private async Task RemoveSelectedCategories()
+    {
+        if(selectedItems.Any())
+        {
+            foreach(var item in selectedItems)
+            {
+                await CategoriesService.RemoveCategoryAsync(item.Id);
+            }
+            await table.ReloadServerData();
+        }
+    }
+
+    private async void EditItem(object item)
+    {
+        await CategoriesService.EditCategoryAsync((Category)item);
+        await table.ReloadServerData();
+    }
+
+    private void BackupItem(object element)
+    {
+        categoryBeforeEdit = new()
+        {   
+            Name = ((Category)element).Name,
+            Description = ((Category)element).Description,
+        };
+    }
+
+    private void ResetItemToOriginalValues(object element)
+    {
+        ((Category)element).Name = categoryBeforeEdit.Name;
+        ((Category)element).Description = categoryBeforeEdit.Description;
+    }
+
+    private async void OnSearch(string text)
+    {
+        searchString = text;
+        await table.ReloadServerData();
+    }
+
+    private async Task LoadCategories()
+    {
+        loading = true;
+        categories = await CategoriesService.GetCategoriesAsync();
+        loading = false;
+    }
+
+    private async Task DownloadAsCSV()
+    {
+        //TODO
+    }
 }

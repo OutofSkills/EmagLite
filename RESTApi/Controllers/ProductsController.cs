@@ -52,9 +52,9 @@ namespace RESTApi.Controllers
 
         // DELETE api/<ProductController>/5
         [HttpDelete("{id}")]
-        public void Delete(int id)
+        public async Task Delete(int id)
         {
-            productService.RemoveProductAsync(id);
+            await productService.RemoveProductAsync(id);
         }
     }
 }

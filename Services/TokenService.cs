@@ -50,7 +50,6 @@ namespace RESTApi.Services
             {
                 cfg.CreateMap<RegisterRequest, User>();
             });
-
             IMapper iMapper = config.CreateMapper();
             user = iMapper.Map<RegisterRequest, User>(registerRequest);
 

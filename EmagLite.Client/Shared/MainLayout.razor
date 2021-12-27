@@ -17,10 +17,10 @@
             <MudIconButton Icon="@Icons.Material.Outlined.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
         </MudHidden>
         <MudHidden Breakpoint="Breakpoint.Xs">
-            <MudText Typo="Typo.h6" Class="ml-4">Client</MudText>
+            <MudText Typo="Typo.h6" Class="ml-4">Admin</MudText>
         </MudHidden>
         <MudHidden Breakpoint="Breakpoint.Xs" Invert="true">
-            <MudText Typo="Typo.subtitle2">Client</MudText>
+            <MudText Typo="Typo.subtitle2">Admin</MudText>
         </MudHidden>
         <MudSpacer />
         <MudMenu Icon="@Icons.Material.Outlined.Translate" Color="Color.Inherit" Direction="Direction.Bottom" OffsetY="true" Dense="true">
@@ -116,11 +116,7 @@
         var id = await GetLoggedUserId();
         if(id != 0)
         {
-            var httpResponse = await UsersService.GetUserAsync(id);
-
-            var responseString = await httpResponse.Content.ReadAsStringAsync();
-
-            user = JsonSerializer.Deserialize<User>(responseString, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            user = await UsersService.GetUserAsync(id);
         }
         else
         {

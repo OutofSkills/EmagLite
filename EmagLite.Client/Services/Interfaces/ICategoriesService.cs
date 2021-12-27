@@ -8,6 +8,7 @@ namespace EmagLite.Client.Services.Interfaces
     {
         Task<IEnumerable<Category>> GetCategoriesAsync();
         Task AddCategoryAsync(Category category);
-        Task DeleteCategoryAsync(int idCategory);
+        Task RemoveCategoryAsync(int idCategory);
+        Task EditCategoryAsync(Category category);
     }
 }
