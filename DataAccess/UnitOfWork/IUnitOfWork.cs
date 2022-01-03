@@ -16,6 +16,8 @@ namespace DataAccess.UnitOfWork
         IProductRepository ProductRepository { get; }
         ICategoryRepository CategoryRepository { get; }
         IUsersRepository UsersRepository { get; }
+        IBrandsRepository BrandsRepository { get; }
+        ITypesRepository TypesRepository { get; }
 
 
         /// <summary>

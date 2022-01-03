@@ -143,6 +143,8 @@ builder.Services.AddScoped<IRoleService, RoleService>();
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IProductCategoryService, ProductCategoryService>();
 builder.Services.AddScoped<IUsersService, UsersService>();
+builder.Services.AddScoped<ITypesService, TypesService>();
+builder.Services.AddScoped<IBrandsService, BrandsService>();
 
 var app = builder.Build();
 

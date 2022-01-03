@@ -1,20 +1,15 @@
 ﻿@page "/management/products/new-product"
 
 @using System.IO 
-@using Services.Interfaces
 @inject ISnackbar Snackbar
 
-<MudContainer MaxWidth="MaxWidth.ExtraLarge">
-    <MudGrid>
-        <MudItem lg="8" md="8" xs="12" sm="12">
+<MudContainer MaxWidth="MaxWidth.Medium">
             <MudElement Class="d-flex flex-column">
                 <MudText Typo="Typo.h5" Class="mb-3">New Product</MudText>
                 <EditForm Model="Product" OnValidSubmit="HandleSubmit">
                     <DataAnnotationsValidator />
                     <MudCard>
                         <MudCardContent>
-                            <MudTextField Label="Brand"
-                                          @bind-Value="Product.Brand" For="@(() => Product.Brand)" />
                             <MudTextField Label="Name" Class="mt-3"
                                           @bind-Value="Product.Name" For="@(() => Product.Name)" />
                             <MudTextField Label="Amount" Class="mt-3" HelperText="Amount of available items."
@@ -31,6 +26,24 @@
                                     }
                                 }
                             </MudSelect>
+                             <MudSelect T="string" @bind-Value="_selectedBrandName" Label="Brand" AnchorOrigin="Origin.BottomCenter">
+                                @if(Categories is not null)
+                                {
+                                    @foreach(var brand in Brands)
+                                    {
+                                        <MudSelectItem Value="@(brand.Name)" />
+                                    }
+                                }
+                            </MudSelect>
+                             <MudSelect T="string" @bind-Value="_selectedTypeName" Label="Type" AnchorOrigin="Origin.BottomCenter">
+                                @if(Categories is not null)
+                                {
+                                    @foreach(var type in Types)
+                                    {
+                                        <MudSelectItem Value="@(type.Name)" />
+                                    }
+                                }
+                            </MudSelect>
                         </MudCardContent>
 
                         <MudCardActions>
@@ -43,19 +56,21 @@
                                 Upload your image
                             </MudButton>
 
-                            <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto">Save Product</MudButton>
+                            <MudButton Disabled="@(processing)" Variant="Variant.Filled" Color="Color.Primary" ButtonType="ButtonType.Submit" Size="Size.Large" Class="ml-auto">
+                                @if (processing)
+                                {
+                                    <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
+                                    <MudText Class="ms-2">Processing</MudText>
+                                }
+                                else
+                                {
+                                    <MudText>Save Product</MudText>
+                                }
+                            </MudButton>
                         </MudCardActions>
                     </MudCard>
                 </EditForm>
             </MudElement>
-        </MudItem>
-        <MudItem lg="4" md="4" xs="12" sm="12">
-            <MudElement Class="d-flex flex-column">
-                <MudText Typo="Typo.h5" Class="mb-3">Preview</MudText>
-                <ProductCard Product="Product" />
-            </MudElement>
-        </MudItem>
-    </MudGrid>
 </MudContainer>
 
 @code {
@@ -63,21 +78,41 @@
     protected IEnumerable<Category> Categories { get; set; }
     private string _selectedCategoryName;
 
+    protected IEnumerable<ProductBrand> Brands { get; set; }
+    private string _selectedBrandName;
+
+    protected IEnumerable<ProductType> Types { get; set; }
+    private string _selectedTypeName;
+
     [Inject] public IProductsService ProductsService{ get; set; }
     [Inject] public ICategoriesService CategoriesService{ get; set; }
+    [Inject] public IBrandsService BrandsService{ get; set; }
+    [Inject] public ITypesService TypesService{ get; set; }
+
+    private bool processing;
 
     protected async override Task OnInitializedAsync()
     {
         Categories = await CategoriesService.GetCategoriesAsync();
+        Brands = await BrandsService.GetBrandsAsync();
+        Types = await TypesService.GetTypesAsync();
     }
 
     protected async Task HandleSubmit()
     {
         var selectedCategory = Categories.Where(c => c.Name == _selectedCategoryName).FirstOrDefault();
+        var selectedBrand = Brands.Where(b => b.Name == _selectedBrandName).FirstOrDefault();
+        var selectedType = Types.Where(t => t.Name == _selectedTypeName).FirstOrDefault();
 
         Product.CategoryId = selectedCategory.Id;
+        Product.BrandId = selectedBrand.Id;
+        Product.TypeId = selectedType.Id;
 
+        processing = true;
         await ProductsService.AddProductAsync(Product);
+        processing = false;
+
+       Snackbar.Add("Product added successfully!", Severity.Success);
     }
 
     private async Task UploadFile(InputFileChangeEventArgs e)

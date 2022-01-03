@@ -15,6 +15,8 @@ namespace DataAccess.UnitOfWork
         public IProductRepository ProductRepository { get; private set; }
         public ICategoryRepository CategoryRepository { get; private set; }
         public IUsersRepository UsersRepository { get; private set; }
+        public IBrandsRepository BrandsRepository { get; private set;}
+        public ITypesRepository TypesRepository { get; private set; }
 
 
         /// <summary>
@@ -32,6 +34,8 @@ namespace DataAccess.UnitOfWork
             ProductRepository = new ProductsRepository(context);
             CategoryRepository = new CategoriesRepository(context);
             UsersRepository = new UsersRepository(context);
+            BrandsRepository = new BrandsRepository(context);
+            TypesRepository = new TypesRepository(context);
         }
 
         /// <summary>

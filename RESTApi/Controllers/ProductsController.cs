@@ -40,7 +40,14 @@ namespace RESTApi.Controllers
         [HttpPost]
         public async Task PostAsync([FromBody] Product product)
         {
-            await productService.AddProductAsync(product);
+            try
+            {
+                await productService.AddProductAsync(product);
+
+            }catch(Exception ex)
+            {
+
+            }
         }
 
         // PUT api/<ProductController>/5

@@ -1,28 +1,220 @@
 ﻿@page "/products"
-@page "/{Category}/products"
+@page "/{CategoryName}/products"
 
 @layout ClientLayout
 
-
-<MudGrid>
-    @foreach (var product in ProductList)
+<MudText Typo="Typo.h4" Class="mb-2">
+    @if(String.IsNullOrEmpty(CategoryName))
     {
-        <MudItem xs="12" md="6" lg="3">
-            <ProductCard Product="product" />
+        <text>All Products</text>
+    }
+    else
+    {
+        @CategoryName
+    }
+</MudText>
+<MudDivider DividerType="DividerType.Middle" Class="my-3 mb-3"/>
+
+<!--Filter-->
+<MudElement Class="d-flex justify-space-between">
+    <MudElement>
+        <MudSelect @bind-Value="@sortValue" Label="" Variant="Variant.Outlined" OffsetY="true">
+            <MudSelectItem Value="@("Most Popular")" />
+            <MudSelectItem Value="@("Newest")" />
+            <MudSelectItem Value="@("Decreasing Price")" />
+            <MudSelectItem Value="@("Increasing Price")" />
+            <MudSelectItem Value="@("Reviews")" />
+        </MudSelect>
+    </MudElement>
+    <MudIconButton Icon="@Icons.Filled.FilterList" OnClick="@(() => OpenDrawer(Anchor.End))" />
+</MudElement>
+
+<MudDivider DividerType="DividerType.Middle" Class="my-3 mb-6"/>
+
+<MudDrawer @bind-Open="@open" Anchor="@anchor" Elevation="1" Variant="@DrawerVariant.Temporary" Width="@width" Height="@height">
+    <MudDrawerHeader>
+        <MudText Typo="Typo.h6">Filter</MudText>
+    </MudDrawerHeader>
+    <MudNavMenu>
+        <MudContainer>
+            @if(ProductBrands is null || ProductTypes is null)
+            {
+                <MudSkeleton Height="10px" Width ="50px" />
+                <MudSkeleton Height="10px" Width ="50px" />
+                <MudSkeleton Height="10px"/>
+            }
+            else
+            {
+                <MudSelect Label="Product Brand" Variant="Variant.Outlined" OffsetY="true" Class="mb-2" ValueChanged="@((string value) => HandleBrandChange(value))">
+                    @foreach(var brand in ProductBrands)
+                    {
+                        <MudSelectItem Value="@brand.Name" />
+                    }
+                     <MudSelectItem Value="@("All")" />
+                </MudSelect>
+                <MudSelect Label="Product Type" Variant="Variant.Outlined" OffsetY="true" Class="mb-2" ValueChanged="@((string value) => HandleTypeChange(value))">
+                    @foreach(var type in ProductTypes)
+                    {
+                        <MudSelectItem Value="@type.Name" />
+                    }
+                     <MudSelectItem Value="@("All")" />
+                </MudSelect>
+                <MudSlider @bind-Value="@priceRange" Min="@min" Max="@max" Step="0.05" Color="Color.Info" Class="mb-2" @onchange="HandlePriceRangeChange">Price range: @priceRange.ToString()</MudSlider>
+            }
+        </MudContainer>
+    </MudNavMenu>
+</MudDrawer>
+<MudGrid>
+    @if(ProductList is null || FilteredProducts is null)
+    {
+        <MudItem xs="12" md="6" lg="4">
+            <MudCard>
+                <MudSkeleton SkeletonType="SkeletonType.Rectangle" Height="200px"/>
+                <MudCardContent>
+                    <MudSkeleton Width="30%" Height="42px;" />
+                    <MudSkeleton Width="80%" />
+                    <MudSkeleton Width="100%" />
+                </MudCardContent>
+                <MudCardActions>
+                    <MudSkeleton Width="64px" Height="40px" Class="ml-2" />
+                    <MudSkeleton Width="105px" Height="40px" Class="ml-3" />
+                </MudCardActions>
+            </MudCard>
         </MudItem>
+        <MudItem xs="12" md="6" lg="4">
+            <MudCard>
+                <MudSkeleton SkeletonType="SkeletonType.Rectangle" Height="200px"/>
+                <MudCardContent>
+                    <MudSkeleton Width="30%" Height="42px;" />
+                    <MudSkeleton Width="80%" />
+                    <MudSkeleton Width="100%" />
+                </MudCardContent>
+                <MudCardActions>
+                    <MudSkeleton Width="64px" Height="40px" Class="ml-2" />
+                    <MudSkeleton Width="105px" Height="40px" Class="ml-3" />
+                </MudCardActions>
+            </MudCard>
+        </MudItem>
+        <MudItem xs="12" md="6" lg="4">
+            <MudCard>
+                <MudSkeleton SkeletonType="SkeletonType.Rectangle" Height="200px"/>
+                <MudCardContent>
+                    <MudSkeleton Width="30%" Height="42px;" />
+                    <MudSkeleton Width="80%" />
+                    <MudSkeleton Width="100%" />
+                </MudCardContent>
+                <MudCardActions>
+                    <MudSkeleton Width="64px" Height="40px" Class="ml-2" />
+                    <MudSkeleton Width="105px" Height="40px" Class="ml-3" />
+                </MudCardActions>
+            </MudCard>
+        </MudItem>
+    }
+    else
+    {
+        @if(!FilteredProducts.Any())
+        {
+            <MudText Typo="Typo.body1" Class="mx-auto">No items were found.</MudText>
+        }
+        @foreach (var product in FilteredProducts)
+        {
+            <MudItem xs="12" md="6" lg="4">
+                <ProductCard Product="product" />
+            </MudItem>
+        }
     }
 </MudGrid>
 
 
 @code {
     [Parameter]
-    public Category Category { get; set; }
+    public string CategoryName{ get; set; }
+    private Category category{ get; set; }
 
-    public List<Product> ProductList { get; set; } = new();
+    public IEnumerable<Product> ProductList { get; set; }
+    public IEnumerable<Product> FilteredProducts { get; set; }
 
-    protected override void OnInitialized()
+    public IEnumerable<ProductBrand> ProductBrands { get; set; }
+    public IEnumerable<ProductType> ProductTypes { get; set; }
+
+    [Inject] public IProductsService ProductsService{ get; set; }
+    [Inject] public IBrandsService BrandsService{ get; set; }
+    [Inject] public ITypesService TypesService{ get; set; }
+    [Inject] public ICategoriesService CategoriesService{ get; set; }
+
+    /*Sorting value*/
+    private string sortValue = "Most Popular";
+
+    /*Drawer filter*/
+    bool open;
+    Anchor anchor;
+    string width = "300px", height = "100%";
+
+    void OpenDrawer(Anchor anchor)
     {
-        ProductList.Add(new Product { Brand = "Sony", Amount = 10, Name = "Sony WH-1000XM4", Price = 1599, Rating = 5, Category = new() });
-        ProductList.Add(new Product { Brand = "JBL", Amount = 12, Name = "JBL T460BT by Harman", Price = 1299, Rating = 4, Category = new() });
+        open = true;
+        this.anchor = anchor;
+    }
+
+    private double priceRange;
+    private int min, max;
+
+    protected override async Task OnInitializedAsync()
+    {
+        FilteredProducts = ProductList = await ProductsService.GetProductsAsync();
+        ProductBrands = await BrandsService.GetBrandsAsync();
+        ProductTypes = await TypesService.GetTypesAsync();
+
+        priceRange = min = ProductList.Min(p => Convert.ToInt32(p.Price));
+        max = ProductList.Max(p => Convert.ToInt32(p.Price));
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if(!String.IsNullOrEmpty(CategoryName))
+        {
+            var categories = await CategoriesService.GetCategoriesAsync();
+            category = categories.Where(c => c.Name.ToLower() == CategoryName.ToLower()).FirstOrDefault();
+            FilteredProducts = ProductList = ProductList.Where(p => p.CategoryId == category.Id).ToList();
+            CategoryName = ToTitleCase(CategoryName);
+        }
+    }
+
+    private string ToTitleCase(string str)
+    {
+        TextInfo textInfo = new CultureInfo("en-US", false).TextInfo;
+
+        return textInfo.ToTitleCase(str);
+    }
+
+    private void HandlePriceRangeChange()
+    {
+        FilteredProducts = ProductList.Where(p => Convert.ToInt32(p.Price) >= priceRange).ToList();
+    }
+
+    private void HandleBrandChange(string selectedBrand)
+    {
+        if (selectedBrand == "All")
+        {
+            FilteredProducts = ProductList;
+        }
+        else
+        {
+            var brand = ProductBrands.Where(b => b.Name == selectedBrand).FirstOrDefault();
+            FilteredProducts = ProductList.Where(p => p.BrandId == brand.Id).ToList();
+        }
+    }
+
+    private void HandleTypeChange(string selectedType)
+    {
+        if (selectedType == "All")
+        {
+            FilteredProducts = ProductList;
+        }
+        else
+        {
+            var type = ProductTypes.Where(b => b.Name == selectedType).FirstOrDefault();
+            FilteredProducts = ProductList.Where(p => p.TypeId == type.Id).ToList();
+        }
     }
 }

@@ -15,17 +15,32 @@ namespace Models
         [Required]
         public string Name { get; set; }
         [Required]
-        public string Brand { get; set; }
-        [Required]
         public byte[] Image { get; set; }
         [Required]
         public decimal Price { get; set; }
-        public int Rating { get; set; }
         [Required]
         public int Amount { get; set; }
+        public int RatingId { get; set; }
         public int CategoryId { get; set; }
+        public int TypeId { get; set; }
+        public int BrandId { get; set; }
+
+        [ForeignKey(nameof(RatingId))]
+        public ProductRating Rating{ get; set; }
 
         [ForeignKey(nameof(CategoryId))]
         public virtual Category Category { get; set; }
+
+        [ForeignKey(nameof(TypeId))]
+        public virtual ProductType Type { get; set; }
+
+        [ForeignKey(nameof(BrandId))]
+        public virtual ProductBrand Brand { get; set; }
+
+        public Product()
+        {
+            Rating = new() { RatedTimes = 0, Value = 0 };
+        }
+
     }
 }

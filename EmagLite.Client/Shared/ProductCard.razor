@@ -1,10 +1,10 @@
-﻿
-@if (Product is null)
+﻿@if (Product is null)
 {
     <MudProgressCircular Color="Color.Primary" Size="Size.Large" Indeterminate="true" />
 }
 else
 {
+
     <MudCard>
         @if (Product.Image is null)
         {
@@ -16,12 +16,23 @@ else
         }
         <MudCardContent Style="text-align:center">
             <MudText Typo="Typo.h5">@Product.Name</MudText>
-            <MudRating SelectedValue="@Product.Rating" />
-            <MudText Typo="Typo.body2">@Product.Price <b>Lei</b></MudText>
+            <MudElement Class="d-flex flex-row justify-center">
+                    <MudRating SelectedValue="@Product.Rating.Value" />
+                <MudText Typo="@Typo.subtitle1">(@Product.Rating.RatedTimes)</MudText>
+            </MudElement>
+            @if(Product.Amount > 0)
+            {
+                    <MudText Typo="@Typo.overline">In stock</MudText>
+            }
+            else
+            {
+                    <MudText Typo="@Typo.overline">Out of stock</MudText>
+            }
+            <MudText Typo="Typo.h6" Color="Color.Error">@Product.Price <b>Lei</b></MudText>
         </MudCardContent>
         <MudCardActions>
-            <MudButton Variant="Variant.Text" Color="Color.Primary">Add to Cart</MudButton>
-            <MudButton Variant="Variant.Text" Color="Color.Primary">Details</MudButton>
+            <MudIconButton Icon="@Icons.Filled.AddShoppingCart" Color="Color.Primary" Title="Add to Cart" />
+            <MudIconButton Icon="@Icons.Filled.StarBorder" Color="Color.Primary" Title="Add to Wishlist" />
         </MudCardActions>
     </MudCard>
 }

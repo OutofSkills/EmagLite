@@ -173,7 +173,7 @@
         {
             if (string.IsNullOrWhiteSpace(searchString))
                 return true;
-            if (element.Brand.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            if (element.Brand.Name.Contains(searchString, StringComparison.OrdinalIgnoreCase))
                 return true;
             if (element.Name.Contains(searchString, StringComparison.OrdinalIgnoreCase))
                 return true;
@@ -186,7 +186,7 @@
                 products = products.OrderByDirection(state.SortDirection, o => o.Id);
                 break;
             case "Brand":
-                products = products.OrderByDirection(state.SortDirection, o => o.Brand);
+                products = products.OrderByDirection(state.SortDirection, o => o.Brand.Name);
                 break;
             case "Name":
                 products = products.OrderByDirection(state.SortDirection, o => o.Name);
