@@ -1,0 +1,100 @@
+﻿@page "/account/cart"
+
+@layout ClientLayout
+
+<MudText Typo="Typo.h4" Class="mb-2">
+    My Cart
+</MudText>
+
+<MudDivider DividerType="DividerType.Middle" Class="my-3 mb-4"/>
+
+<MudGrid>
+    <MudItem lg="9" md="9" sm="12" xs="12">
+        <MudElement Class="d-flex flex-column">
+            @if(products is null)
+            {
+
+            }
+            else
+            {
+                @foreach(var product in products)
+                {
+                    <MudPaper Class=" mb-6" Style="background-color:#C5CAE9">
+                        <MudText Typo="Typo.h5" Class="ma-2">Sold and delivered by EmagLite store.</MudText>
+                        <MudPaper Class="ma-4">
+                            <MudElement Class="d-flex flex-row">
+                                <MudAvatar Class="ma-4" Square="true" Image="@string.Format("data:image/svg+xml+jpg+jpeg;base64,{0}", Convert.ToBase64String(product.Image))"  Style="height:240px; width:180px;"/>
+                                
+                                <MudElement Class="d-flex flex-column ma-4">
+                                    <MudText Typo="Typo.h6" Class="mb-4"><b>@product.Name</b></MudText>
+                                    <MudText Typo="Typo.body2" Class="mb-2">Availability: @(product.Amount > 0 ? "In stock" : "Out of stock")</MudText>
+                                     <MudText Typo="Typo.body2" Class="mb-2">Garanty: 6 months</MudText>
+                                </MudElement >
+
+                                <MudSpacer />
+
+                                <MudText Typo="Typo.h6" Class="ma-4"><b>@product.Price Lei</b></MudText>
+                            </MudElement>
+                        </MudPaper>
+                        <MudElement Class="d-flex">
+                            <MudSpacer />
+                            <MudElement Class="d-flex flex-column">
+                                <MudElement Class="d-flex ma-2">
+                                    <MudText Typo="Typo.body1">Products price: &nbsp; </MudText>
+                                    <MudText Typo="Typo.body1">110 Lei </MudText>
+                                </MudElement>
+
+                                <MudElement Class="d-flex ma-2">
+                                    <MudText Typo="Typo.body1">Delivery price: &nbsp;</MudText>
+                                    <MudText Typo="Typo.body1">110 Lei </MudText>
+                                </MudElement>
+
+                                <MudElement Class="d-flex ma-2">
+                                    <MudText Typo="Typo.body1"><b>Subtotal price: &nbsp; </b></MudText>
+                                    <MudText Typo="Typo.body1">110 Lei </MudText>
+                                </MudElement>
+                             </MudElement>
+                        </MudElement>
+                    </MudPaper>
+                }
+            }
+        </MudElement>
+    </MudItem>
+    <MudItem lg="3" md="3" sm="12" xs="12">
+        <MudPaper Class="d-flex flex-column">
+            <MudText Typo="Typo.h5" Class="mb-2 ma-2">Summary</MudText>
+
+            <MudElement Class="d-flex mb-2 ma-2">
+                <MudText Typo="Typo.body1">Products price: </MudText>
+                <MudSpacer />
+                <MudText Typo="Typo.body1">110 Lei </MudText>
+            </MudElement>
+
+            <MudElement Class="d-flex mb-4 ma-2">
+                <MudText Typo="Typo.body1">Delivery price: </MudText>
+                <MudSpacer />
+                <MudText Typo="Typo.body1">110 Lei </MudText>
+            </MudElement>
+
+            <MudDivider DividerType="DividerType.Middle" Class="my-2 mb-2 ma-2" />
+
+             <MudElement Class="mb-2 ma-2">
+                <MudText Typo="Typo.h6"><b>Total price: </b></MudText>
+                <MudText Typo="Typo.body1"><b>220 Lei </b></MudText>
+            </MudElement>
+
+            <MudButton ButtonType="ButtonType.Submit" StartIcon="@Icons.Filled.KeyboardDoubleArrowRight" Variant="Variant.Filled" IconColor="Color.Error" Color="Color.Primary" Class="ma-2">Continue</MudButton>
+        </MudPaper>
+    </MudItem>
+</MudGrid>
+
+@code {
+    [Inject] public ICartService CartService{ get; set; }
+
+    private IEnumerable<Product> products;
+
+    protected override async Task OnInitializedAsync()
+    {
+        products = await CartService.GetProductsAsync();
+    }
+}

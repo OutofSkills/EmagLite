@@ -8,7 +8,17 @@
     <MudAppBar Elevation="0">
         <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
         <MudSpacer />
-        <MudIconButton Icon="@Icons.Material.Filled.ShoppingCart" Color="Color.Inherit" Link="/shopping-cart/products" Target="_blank" />
+        @if(AppState.isCartEmpty)
+        {
+            <MudIconButton Icon="@Icons.Material.Filled.ShoppingCart" Color="Color.Inherit" Target="_blank" Class="mx-6 my-4" />
+        }
+        else
+        {
+            <MudBadge Color="Color.Error" Overlap="true" Dot="true" Bordered="true" Class="mx-6 my-4">
+                <MudIconButton Icon="@Icons.Material.Filled.ShoppingCart" Color="Color.Inherit" Link="/account/cart" />
+            </MudBadge>
+        }
+
         <MudIconButton Icon="@Icons.Material.Filled.Login" Color="Color.Inherit" Link="/authentication/login" Target="_blank" />
     </MudAppBar>
     <MudDrawer @bind-Open="_drawerOpen" Elevation="1">
@@ -25,10 +35,35 @@
 </MudLayout>
 
 @code {
-    bool _drawerOpen = true;
+    [Inject] public ICartService CartService{ get; set; }
+
+    [Inject] public AppState AppState{ get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        AppState.OnChange += StateHasChanged;
+
+        var products = await CartService.GetProductsAsync();
+        if(products is null)
+        {
+            AppState.isCartEmpty = true;
+        }
+        else
+        {
+            AppState.isCartEmpty = false;
+        }
+    }
+
+    bool _drawerOpen = false;
 
     void DrawerToggle()
     {
         _drawerOpen = !_drawerOpen;
     }
+
+    public void Dispose()
+    {
+        AppState.OnChange -= StateHasChanged;
+    }
+
 }

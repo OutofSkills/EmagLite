@@ -173,10 +173,11 @@
     {
         if(!String.IsNullOrEmpty(CategoryName))
         {
+            CategoryName = ToTitleCase(CategoryName);
+
             var categories = await CategoriesService.GetCategoriesAsync();
             category = categories.Where(c => c.Name.ToLower() == CategoryName.ToLower()).FirstOrDefault();
             FilteredProducts = ProductList = ProductList.Where(p => p.CategoryId == category.Id).ToList();
-            CategoryName = ToTitleCase(CategoryName);
         }
     }
 

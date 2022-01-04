@@ -3,6 +3,7 @@ using EmagLite.Client.Authentication;
 using EmagLite.Client.Authentication.Interfaces;
 using EmagLite.Client.Services.Implementations;
 using EmagLite.Client.Services.Interfaces;
+using EmagLite.Client.Utilities;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -34,6 +35,8 @@ namespace EmagLite.Client
             builder.Services.AddScoped<IUsersService, UsersService>();
             builder.Services.AddScoped<IBrandsService, BrandsService>();
             builder.Services.AddScoped<ITypesService, TypesService>();
+            builder.Services.AddScoped<ICartService, CartService>();
+            builder.Services.AddSingleton<AppState>();
 
             builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
             builder.Services.AddScoped<AuthenticationStateProvider, AuthStateProvider>();

@@ -31,7 +31,7 @@ else
             <MudText Typo="Typo.h6" Color="Color.Error">@Product.Price <b>Lei</b></MudText>
         </MudCardContent>
         <MudCardActions>
-            <MudIconButton Icon="@Icons.Filled.AddShoppingCart" Color="Color.Primary" Title="Add to Cart" />
+            <MudIconButton Icon="@Icons.Filled.AddShoppingCart" Color="Color.Primary" Title="Add to Cart" OnClick="@AddProductToCart" />
             <MudIconButton Icon="@Icons.Filled.StarBorder" Color="Color.Primary" Title="Add to Wishlist" />
         </MudCardActions>
     </MudCard>
@@ -40,4 +40,21 @@ else
 @code {
     [Parameter]
     public Product Product { get; set; }
+
+    [Inject] public ICartService CartService{ get; set; }
+    [Inject] public ISnackbar Snackbar{ get; set; }
+    [Inject] public AppState AppState{ get; set; }
+
+    public async Task AddProductToCart()
+    {
+        if(Product is null)
+        {
+            Snackbar.Add("Something went wrong... Please try again later.", Severity.Error);
+        }
+
+        await CartService.AddProductToCart(Product);
+        AppState.SetCartItems(isEmpty: false);
+        Snackbar.Configuration.PositionClass = Defaults.Classes.Position.BottomEnd;
+        Snackbar.Add("Product added successfully.", Severity.Success);
+    }
 }
