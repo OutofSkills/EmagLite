@@ -11,5 +11,6 @@ namespace EmagLite.Client.Services.Interfaces
         Task RemoveProductAsync(int productId);
         Task BuyProductAsync(int productId);
         Task EditProductAsync(Product product);
+        Task<Product> GetProductAsync(int productId);
     }
 }

@@ -7,7 +7,6 @@ namespace RESTApi.Services.Intefaces
     public interface IProductService
     {
         Task AddProductAsync(Product product);
-        void BuyProducts();
         Task EditProductAsync(int id, Product product);
         Task RemoveProductAsync(int productId);
         IEnumerable<Product> SearchProducts(string productName);

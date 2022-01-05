@@ -69,6 +69,23 @@ namespace EmagLite.Client.Services.Implementations
             return products;
         }
 
+        public async Task<Product> GetProductAsync(int id)
+        {
+            var responseMessage = await httpClient.GetAsync(UriBase + $"/api/Products/{id}");
+
+            if (!responseMessage.IsSuccessStatusCode)
+            {
+                // set error message for display, log to console and return
+                var errorMessage = responseMessage.ReasonPhrase;
+                throw new Exception($"There was an error! {errorMessage}");
+            }
+
+            // convert http response data to UsersResponse object
+            var product = await responseMessage.Content.ReadFromJsonAsync<Product>();
+
+            return product;
+        }
+
         public async Task RemoveProductAsync(int productId)
         {
             var responseMessage = await httpClient.DeleteAsync(UriBase + $"/api/Products/{productId}");

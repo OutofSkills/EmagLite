@@ -13,14 +13,102 @@
         <MudElement Class="d-flex flex-column">
             @if(products is null)
             {
+                <MudPaper Class="mb-6" Style="background-color:#C5CAE9">
+                    <MudElement Class="d-flex">
+                        <MudSkeleton Class="ml-2" Height="50px" Width="250px" />
+                        <MudSpacer />
+                        <MudSkeleton Class="ma-2" Height="20px" Width="20px" />
+                    </MudElement>
+                    <MudPaper Class="ma-4">
+                        <MudElement Class="d-flex flex-row">
+                            <MudSkeleton SkeletonType="SkeletonType.Rectangle" Height="240px" Width="180px" />
+                                
+                            <MudElement Class="d-flex flex-column ma-4">
+                                <MudSkeleton Class="ml-2" Height="45px" Width="150px" />
+                                <MudSkeleton Class="ml-2" Height="40px" Width="100px" />
+                                <MudSkeleton Class="ml-2" Height="40px" Width="100px" />
+                            </MudElement >
 
+                            <MudSpacer />
+                            <MudElement>
+                                <MudSkeleton Class="mr-2" Height="45px" Width="100px" />
+                                <MudSkeleton Class="mr-2" Height="40px" Width="100px" />
+                            </MudElement>
+                        </MudElement>
+                    </MudPaper>
+                    <MudElement Class="d-flex">
+                        <MudSpacer />
+                        <MudElement Class="d-flex flex-column">
+                            <MudElement Class="d-flex ma-2">
+                                <MudSkeleton Height="20px" Width="150px" />
+                            </MudElement>
+
+                            <MudElement Class="d-flex ma-2">
+                                    <MudSkeleton Height="20px" Width="150px" />
+                            </MudElement>
+
+                            <MudElement Class="d-flex ma-2">
+                                <MudSkeleton Height="35px" Width="150px" />
+                            </MudElement>
+                            </MudElement>
+                    </MudElement>
+                </MudPaper>
+
+                <MudPaper Class="mb-6" Style="background-color:#C5CAE9">
+                    <MudElement Class="d-flex">
+                        <MudSkeleton Class="ml-2" Height="50px" Width="250px" />
+                        <MudSpacer />
+                        <MudSkeleton Class="ma-2" Height="20px" Width="20px" />
+                    </MudElement>
+                    <MudPaper Class="ma-4">
+                        <MudElement Class="d-flex flex-row">
+                            <MudSkeleton SkeletonType="SkeletonType.Rectangle" Height="240px" Width="180px" />
+                                
+                            <MudElement Class="d-flex flex-column ma-4">
+                                <MudSkeleton Class="ml-2" Height="45px" Width="150px" />
+                                <MudSkeleton Class="ml-2" Height="40px" Width="100px" />
+                                <MudSkeleton Class="ml-2" Height="40px" Width="100px" />
+                            </MudElement >
+
+                            <MudSpacer />
+                            <MudElement>
+                                <MudSkeleton Class="mr-2" Height="45px" Width="100px" />
+                                <MudSkeleton Class="mr-2" Height="40px" Width="100px" />
+                            </MudElement>
+                        </MudElement>
+                    </MudPaper>
+                    <MudElement Class="d-flex">
+                        <MudSpacer />
+                        <MudElement Class="d-flex flex-column">
+                            <MudElement Class="d-flex ma-2">
+                                <MudSkeleton Height="20px" Width="150px" />
+                            </MudElement>
+
+                            <MudElement Class="d-flex ma-2">
+                                    <MudSkeleton Height="20px" Width="150px" />
+                            </MudElement>
+
+                            <MudElement Class="d-flex ma-2">
+                                <MudSkeleton Height="35px" Width="150px" />
+                            </MudElement>
+                            </MudElement>
+                    </MudElement>
+                </MudPaper>
             }
             else
             {
+                @if(!products.Any())
+                {
+                    <MudText Typo="Typo.body1" Align="Align.Center">Your cart is empty.</MudText>
+                }
                 @foreach(var product in products)
                 {
                     <MudPaper Class=" mb-6" Style="background-color:#C5CAE9">
-                        <MudText Typo="Typo.h5" Class="ma-2">Sold and delivered by EmagLite store.</MudText>
+                        <MudElement Class="d-flex">
+                            <MudText Typo="Typo.h5" Class="ma-2">Sold and delivered by EmagLite store.</MudText>
+                            <MudSpacer />
+                            <MudIconButton Icon="@Icons.Filled.DeleteOutline" Color="Color.Error" OnClick="@(() => HandleRemoveFromCart(product.Id))" />
+                        </MudElement>
                         <MudPaper Class="ma-4">
                             <MudElement Class="d-flex flex-row">
                                 <MudAvatar Class="ma-4" Square="true" Image="@string.Format("data:image/svg+xml+jpg+jpeg;base64,{0}", Convert.ToBase64String(product.Image))"  Style="height:240px; width:180px;"/>
@@ -28,12 +116,18 @@
                                 <MudElement Class="d-flex flex-column ma-4">
                                     <MudText Typo="Typo.h6" Class="mb-4"><b>@product.Name</b></MudText>
                                     <MudText Typo="Typo.body2" Class="mb-2">Availability: @(product.Amount > 0 ? "In stock" : "Out of stock")</MudText>
-                                     <MudText Typo="Typo.body2" Class="mb-2">Garanty: 6 months</MudText>
+                                     <MudText Typo="Typo.body2" Class="mb-2">Guarantee: @product.GuaranteeDays days </MudText>
                                 </MudElement >
 
                                 <MudSpacer />
-
-                                <MudText Typo="Typo.h6" Class="ma-4"><b>@product.Price Lei</b></MudText>
+                                <MudElement>
+                                    <MudText Typo="Typo.h6" Class="ma-4 mb-4"><b>@product.Price Lei</b></MudText>
+                                    <MudElement Class="d-flex flex-row">
+                                        <MudIconButton Icon="@Icons.Material.Filled.Remove" Class="ma-1" aria-label="decrease" OnClick="@(() => DecreaseQuantity(product.Id))"/>
+                                        <MudText Typo="Typo.overline" Class="mt-3">@(productsInCart.Where(p => p.ProductId == product.Id).FirstOrDefault().Quantity)</MudText>
+                                        <MudIconButton Icon="@Icons.Filled.Add" Class="ma-1" aria-label="increase" OnClick="@(() => IncreaseQuantity(product.Id))" />
+                                    </MudElement>
+                                </MudElement>
                             </MudElement>
                         </MudPaper>
                         <MudElement Class="d-flex">
@@ -41,17 +135,17 @@
                             <MudElement Class="d-flex flex-column">
                                 <MudElement Class="d-flex ma-2">
                                     <MudText Typo="Typo.body1">Products price: &nbsp; </MudText>
-                                    <MudText Typo="Typo.body1">110 Lei </MudText>
+                                    <MudText Typo="Typo.body1">@(product.Price * productsInCart.Where(p => p.ProductId == product.Id).FirstOrDefault().Quantity) Lei </MudText>
                                 </MudElement>
 
                                 <MudElement Class="d-flex ma-2">
                                     <MudText Typo="Typo.body1">Delivery price: &nbsp;</MudText>
-                                    <MudText Typo="Typo.body1">110 Lei </MudText>
+                                    <MudText Typo="Typo.body1">@product.DeliveryPrice Lei </MudText>
                                 </MudElement>
 
                                 <MudElement Class="d-flex ma-2">
                                     <MudText Typo="Typo.body1"><b>Subtotal price: &nbsp; </b></MudText>
-                                    <MudText Typo="Typo.body1">110 Lei </MudText>
+                                    <MudText Typo="Typo.body1">@(product.Price * productsInCart.Where(p => p.ProductId == product.Id).FirstOrDefault().Quantity + product.DeliveryPrice)  Lei </MudText>
                                 </MudElement>
                              </MudElement>
                         </MudElement>
@@ -61,40 +155,133 @@
         </MudElement>
     </MudItem>
     <MudItem lg="3" md="3" sm="12" xs="12">
-        <MudPaper Class="d-flex flex-column">
-            <MudText Typo="Typo.h5" Class="mb-2 ma-2">Summary</MudText>
+        @if(products is null)
+        {
+            <MudPaper Class="d-flex flex-column">
+                <MudSkeleton Class="ma-1 ml-2" Height="40px" Width="100px" />
 
-            <MudElement Class="d-flex mb-2 ma-2">
-                <MudText Typo="Typo.body1">Products price: </MudText>
-                <MudSpacer />
-                <MudText Typo="Typo.body1">110 Lei </MudText>
-            </MudElement>
+                <MudElement Class="d-flex mb-1 ma-2">
+                    <MudSkeleton Height="25px" Width="100px" />
+                    <MudSpacer />
+                    <MudSkeleton Height="25px" Width="50px" />
+                </MudElement>
 
-            <MudElement Class="d-flex mb-4 ma-2">
-                <MudText Typo="Typo.body1">Delivery price: </MudText>
-                <MudSpacer />
-                <MudText Typo="Typo.body1">110 Lei </MudText>
-            </MudElement>
+                <MudElement Class="d-flex mb-2 ma-2">
+                    <MudSkeleton Height="25px" Width="100px" />
+                    <MudSpacer />
+                    <MudSkeleton Height="25px" Width="50px" />
+                </MudElement>
 
-            <MudDivider DividerType="DividerType.Middle" Class="my-2 mb-2 ma-2" />
+                <MudDivider DividerType="DividerType.Middle" Class="my-2 mb-2 ma-2" />
 
-             <MudElement Class="mb-2 ma-2">
-                <MudText Typo="Typo.h6"><b>Total price: </b></MudText>
-                <MudText Typo="Typo.body1"><b>220 Lei </b></MudText>
-            </MudElement>
+                 <MudElement Class="mb-2 ma-2">
+                    <MudSkeleton Height="40px" Width="120px" />
+                    <MudSkeleton Height="40px" Width="100px" />
+                </MudElement>
 
-            <MudButton ButtonType="ButtonType.Submit" StartIcon="@Icons.Filled.KeyboardDoubleArrowRight" Variant="Variant.Filled" IconColor="Color.Error" Color="Color.Primary" Class="ma-2">Continue</MudButton>
-        </MudPaper>
+                <MudSkeleton Class="mx-auto" Height="50px" Width="200px" />
+            </MudPaper>
+        }
+        else
+        {
+            <MudPaper Class="d-flex flex-column" Elevation="3">
+                <MudText Typo="Typo.h5" Class="mb-2 ma-2">Summary</MudText>
+
+                <MudElement Class="d-flex mb-2 ma-2">
+                    <MudText Typo="Typo.body1">Products price: </MudText>
+                    <MudSpacer />
+                    <MudText Typo="Typo.body1">@productsPrice Lei </MudText>
+                </MudElement>
+
+                <MudElement Class="d-flex mb-4 ma-2">
+                    <MudText Typo="Typo.body1">Delivery price: </MudText>
+                    <MudSpacer />
+                    <MudText Typo="Typo.body1">@productsDeliveryPrice Lei </MudText>
+                </MudElement>
+
+                <MudDivider DividerType="DividerType.Middle" Class="my-2 mb-2 ma-2" />
+
+                 <MudElement Class="mb-2 ma-2">
+                    <MudText Typo="Typo.h6"><b>Total price: </b></MudText>
+                    <MudText Typo="Typo.body1"><b>@totalPrice Lei </b></MudText>
+                </MudElement>
+
+                <MudButton ButtonType="ButtonType.Submit" StartIcon="@Icons.Filled.KeyboardDoubleArrowRight" Variant="Variant.Filled" IconColor="Color.Error" Color="Color.Primary" Class="ma-2">Continue</MudButton>
+            </MudPaper>
+        }
     </MudItem>
 </MudGrid>
 
 @code {
     [Inject] public ICartService CartService{ get; set; }
+    [Inject] public IProductsService ProductsService{ get; set; }
 
-    private IEnumerable<Product> products;
+    private List<Product> products;
+    private IEnumerable<ProductInCart> productsInCart;
+
+    private decimal productsPrice, productsDeliveryPrice, totalPrice;
 
     protected override async Task OnInitializedAsync()
     {
-        products = await CartService.GetProductsAsync();
+        await GetCartProducts();
+    }
+
+    private async Task HandleRemoveFromCart(int productId)
+    {
+        await CartService.RemoveProductFromCart(productId);
+        await GetCartProducts();
+    }
+
+    private async Task GetCartProducts()
+    {
+        productsInCart = await CartService.GetProductsAsync();
+
+        if(productsInCart is not null)
+        {
+            products = new List<Product>();
+            foreach (var productInCart in productsInCart)
+            {
+                var product = await ProductsService.GetProductAsync(productInCart.ProductId);
+
+                if (product is not null)
+                {
+                    products.Add(product);
+                }
+                else
+                {
+                    await CartService.RemoveProductFromCart(productInCart.ProductId);
+                }
+            }
+        }
+
+        CalculateProductsPrice();
+    }
+
+    private void CalculateProductsPrice()
+    {
+        productsPrice = 0;
+        productsDeliveryPrice = 0;
+        totalPrice = 0;
+
+        foreach(var product in products)
+        {
+            var productQuantity = productsInCart.Where(p => p.ProductId == product.Id).FirstOrDefault().Quantity;
+            productsPrice += product.Price * productQuantity;
+        }
+
+        productsDeliveryPrice = products.Sum(p => p.DeliveryPrice);
+        totalPrice = productsPrice + productsDeliveryPrice;
+    }
+
+    private async Task IncreaseQuantity(int productId)
+    {
+        await CartService.IncreaseProductQuantity(productId);
+        await GetCartProducts();
+    }
+
+    private async Task DecreaseQuantity(int productId)
+    {
+        await CartService.DecreaseProductQuantity(productId);
+        await GetCartProducts();
     }
 }

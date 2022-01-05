@@ -44,6 +44,7 @@ else
     [Inject] public ICartService CartService{ get; set; }
     [Inject] public ISnackbar Snackbar{ get; set; }
     [Inject] public AppState AppState{ get; set; }
+    int i;
 
     public async Task AddProductToCart()
     {
@@ -52,9 +53,21 @@ else
             Snackbar.Add("Something went wrong... Please try again later.", Severity.Error);
         }
 
-        await CartService.AddProductToCart(Product);
-        AppState.SetCartItems(isEmpty: false);
-        Snackbar.Configuration.PositionClass = Defaults.Classes.Position.BottomEnd;
-        Snackbar.Add("Product added successfully.", Severity.Success);
+        var productInCart = await CartService.GetProductAsync(Product.Id);
+
+        if(productInCart is null)
+        {
+            await CartService.AddProductToCart(Product.Id);
+            AppState.SetCartItems(isEmpty: false);
+            Snackbar.Configuration.PositionClass = Defaults.Classes.Position.BottomEnd;
+            Snackbar.Add("Product added successfully.", Severity.Success);
+        }
+        else
+        {
+            await CartService.IncreaseProductQuantity(Product.Id);
+            Snackbar.Configuration.PositionClass = Defaults.Classes.Position.BottomEnd;
+            Snackbar.Add("Product added successfully.", Severity.Success);
+        }
+
     }
 }

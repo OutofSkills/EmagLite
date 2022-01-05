@@ -102,14 +102,14 @@
     </ToolBarContent>
     <HeaderContent>
         <MudTh><MudTableSortLabel SortBy="new Func<Product, object>(x=>x.Id)">Nr</MudTableSortLabel></MudTh>
-        <MudTh><MudTableSortLabel SortBy="new Func<Product, object>(x=>x.Brand)">Brand</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortBy="new Func<Product, object>(x=>x.Brand.Name)">Brand</MudTableSortLabel></MudTh>
         <MudTh><MudTableSortLabel SortBy="new Func<Product, object>(x=>x.Name)">Name</MudTableSortLabel></MudTh>
         <MudTh><MudTableSortLabel SortBy="new Func<Product, object>(x=>x.Amount)">Amount</MudTableSortLabel></MudTh>
         <MudTh><MudTableSortLabel SortBy="new Func<Product, object>(x=>x.Price)">Price</MudTableSortLabel></MudTh>
     </HeaderContent>
     <RowTemplate>
         <MudTd DataLabel="Id">@context.Id</MudTd>
-        <MudTd DataLabel="Brand">@context.Brand</MudTd>
+        <MudTd DataLabel="Brand">@context.Brand.Name</MudTd>
         <MudTd DataLabel="Name">@context.Name</MudTd>
         <MudTd DataLabel="Amount">@context.Amount</MudTd>
         <MudTd DataLabel="Price">@context.Price</MudTd>
@@ -117,7 +117,7 @@
     <RowEditingTemplate>
         <MudTd DataLabel="Id">@context.Id</MudTd>
         <MudTd DataLabel="Brand">
-            <MudTextField @bind-Value="@context.Brand" Required />
+            <MudTextField @bind-Value="@context.Brand.Name" Required />
         </MudTd>
         <MudTd DataLabel="Name">
             <MudTextField @bind-Value="@context.Name" Required />

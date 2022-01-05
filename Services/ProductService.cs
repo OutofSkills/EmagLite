@@ -69,14 +69,18 @@ namespace RESTApi.Services
             unitOfWork.SaveChanges();
         }
 
-        public void BuyProducts()
-        {
-            //TODO
-        }
-
         public async Task<IEnumerable<Product>> GetProductsAsync()
         {
-            return await unitOfWork.ProductRepository.GetAll();
+            var products = await unitOfWork.ProductRepository.GetAll();
+
+            foreach(var product in products)
+            {
+                product.Brand = await unitOfWork.BrandsRepository.GetById(product.BrandId);
+                product.Category = await unitOfWork.CategoryRepository.GetById(product.CategoryId);
+                product.Type = await unitOfWork.TypesRepository.GetById(product.TypeId);
+            }
+
+            return products;
         }
 
         public async Task<Product> FindProductById(int id)

@@ -14,36 +14,52 @@
                                           @bind-Value="Product.Name" For="@(() => Product.Name)" />
                             <MudTextField Label="Amount" Class="mt-3" HelperText="Amount of available items."
                                           @bind-Value="Product.Amount" For="@(() => Product.Amount)" />
-                            <MudTextField Label="Price" Class="mt-3" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.AttachMoney"
+                            <MudElement Class="d-flex flex-row mt-3">
+                                <MudTextField Label="Price" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.AttachMoney"
                                           @bind-Value="Product.Price" For="@(() => Product.Price)" min="0" step=".01" />
+                                <MudSpacer />
+                                <MudTextField Label="Delivrey Price" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.AttachMoney"
+                                          @bind-Value="Product.DeliveryPrice" For="@(() => Product.DeliveryPrice)" min="0" step=".01" />
+                            </MudElement>
+
                             <InputFile id="fileInput" OnChange="UploadFile" hidden accept=".jpg, .jpeg, .png" />
-                            <MudSelect T="string" @bind-Value="_selectedCategoryName" Label="Category" AnchorOrigin="Origin.BottomCenter">
-                                @if(Categories is not null)
-                                {
-                                    @foreach(var category in Categories)
+
+                            <MudElement Class="d-flex flex-row mt-3">
+                                <MudTextField Label="Garanty Days" Adornment="Adornment.Start" AdornmentIcon="@Icons.Filled.AccessTime"
+                                          @bind-Value="Product.GuaranteeDays" For="@(() => Product.GuaranteeDays)" min="0" />
+                                <MudSpacer />
+                                <MudSelect T="string" @bind-Value="_selectedCategoryName" Label="Category" AnchorOrigin="Origin.BottomCenter">
+                                    @if(Categories is not null)
                                     {
-                                        <MudSelectItem Value="@(category.Name)" />
+                                        @foreach(var category in Categories)
+                                        {
+                                            <MudSelectItem Value="@(category.Name)" />
+                                        }
                                     }
-                                }
-                            </MudSelect>
-                             <MudSelect T="string" @bind-Value="_selectedBrandName" Label="Brand" AnchorOrigin="Origin.BottomCenter">
-                                @if(Categories is not null)
-                                {
-                                    @foreach(var brand in Brands)
+                                </MudSelect>
+                            </MudElement>
+
+                             <MudElement Class="d-flex flex-row mt-3">
+                                 <MudSelect T="string" @bind-Value="_selectedBrandName" Label="Brand" AnchorOrigin="Origin.BottomCenter">
+                                    @if(Brands is not null)
                                     {
-                                        <MudSelectItem Value="@(brand.Name)" />
+                                        @foreach(var brand in Brands)
+                                        {
+                                            <MudSelectItem Value="@(brand.Name)" />
+                                        }
                                     }
-                                }
-                            </MudSelect>
-                             <MudSelect T="string" @bind-Value="_selectedTypeName" Label="Type" AnchorOrigin="Origin.BottomCenter">
-                                @if(Categories is not null)
-                                {
-                                    @foreach(var type in Types)
+                                 </MudSelect>
+                                 <MudSpacer />
+                                 <MudSelect T="string" @bind-Value="_selectedTypeName" Label="Type" AnchorOrigin="Origin.BottomCenter">
+                                    @if(Types is not null)
                                     {
-                                        <MudSelectItem Value="@(type.Name)" />
+                                        @foreach(var type in Types)
+                                        {
+                                            <MudSelectItem Value="@(type.Name)" />
+                                        }
                                     }
-                                }
-                            </MudSelect>
+                                </MudSelect>
+                            </MudElement>
                         </MudCardContent>
 
                         <MudCardActions>

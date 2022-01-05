@@ -20,6 +20,10 @@ namespace Models
         public decimal Price { get; set; }
         [Required]
         public int Amount { get; set; }
+        [Required]
+        public decimal DeliveryPrice { get; set; }
+        [Required]
+        public int GuaranteeDays { get; set; }
         public int RatingId { get; set; }
         public int CategoryId { get; set; }
         public int TypeId { get; set; }
