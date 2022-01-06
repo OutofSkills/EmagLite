@@ -10,7 +10,7 @@
         <MudSpacer />
         @if(AppState.isCartEmpty)
         {
-            <MudIconButton Icon="@Icons.Material.Filled.ShoppingCart" Color="Color.Inherit" Target="_blank" Class="mx-6 my-4" />
+            <MudIconButton Icon="@Icons.Material.Filled.ShoppingCart" Color="Color.Inherit" Link="/account/cart" Class="mx-6 my-4" />
         }
         else
         {
@@ -44,7 +44,11 @@
         AppState.OnChange += StateHasChanged;
 
         var products = await CartService.GetProductsAsync();
-        if(products.Any())
+        if (products is null)
+        {
+            AppState.isCartEmpty = true;
+        }
+        else if (products.Any())
         {
             AppState.isCartEmpty = false;
         }

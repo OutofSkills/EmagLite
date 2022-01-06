@@ -4,6 +4,7 @@ using Models;
 using Models.ViewModels;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
@@ -22,9 +23,27 @@ namespace EmagLite.Client.Services.Implementations
             this.localStorage = localStorage;
         }
 
-        public async Task<List<ProductInCart>> GetProductsAsync()
+        public async Task<Dictionary<int, Product>> GetProductsAsync()
         {
-            var products = await localStorage.GetItemAsync<List<ProductInCart>>("products");
+            var cartProducts = await localStorage.GetItemAsync<List<ProductInCart>>("products");
+            if (cartProducts is null) return null;
+
+            var products = new Dictionary<int, Product>();
+            foreach(var cartProduct in cartProducts)
+            {
+                var responseMessage = await httpClient.GetAsync(UriBase + $"/api/Products/{cartProduct.ProductId}");
+
+                if(responseMessage.IsSuccessStatusCode)
+                {
+                    var product = await responseMessage.Content.ReadFromJsonAsync<Product>();
+
+                    if (product is not null)
+                    {
+                        products.Add(cartProduct.Quantity, product);
+                    }
+                }
+            }
+
             return products;
         }
 
@@ -106,7 +125,7 @@ namespace EmagLite.Client.Services.Implementations
             var products = await localStorage.GetItemAsync<List<ProductInCart>>("products");
             if (products is null)
             {
-                throw new Exception("Coudn't access Local Storage.");
+                return null;
             }
 
             var product = products.Find(p => p.ProductId == productId);

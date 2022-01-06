@@ -18,5 +18,7 @@ namespace DataAccess
         public DbSet<ProductRating> ProductRatings { get; set; }
         public DbSet<ProductBrand> ProductBrands { get; set; }
         public DbSet<ProductType> ProductTypes { get; set; }
+        public DbSet<Order> Orders { get; set; }
+        public DbSet<OrderProduct> OrderProducts { get; set; }
     }
 }

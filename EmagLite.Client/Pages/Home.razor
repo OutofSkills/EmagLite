@@ -1,0 +1,139 @@
+﻿@page "/home"
+@layout ClientLayout
+
+<MudCarousel Class="mb-4" Style="height:400px;" ShowArrows="@arrows" ShowBullets="@bullets" AutoCycle="@autocycle" TData="object">
+    <MudCarouselItem Transition="transition" Color="@Color.Primary">
+        <div class="d-flex" style="height:100%">
+            <MudIcon Class="mx-auto my-auto" Icon="@Icons.Custom.Brands.MudBlazor" Size="@Size.Large" />
+        </div>
+    </MudCarouselItem>
+    <MudCarouselItem Transition="transition" Color="@Color.Secondary">
+        <div class="d-flex" style="height:100%">
+            <MudIcon Class="mx-auto my-auto" Icon="@Icons.Custom.Brands.MudBlazor" Size="@Size.Large" />
+        </div>
+    </MudCarouselItem>
+    <MudCarouselItem Transition="transition">
+        <div class="d-flex" style="height:100%">
+            <MudIcon Class="mx-auto my-auto" Icon="@Icons.Custom.Brands.MudBlazor" Color="@Color.Primary" Size="@Size.Large" />
+        </div>
+    </MudCarouselItem>
+</MudCarousel>
+
+<MudGrid Spacing="3" Class="mb-4">
+    <MudItem lg="4" md="4" sm="6" xs="12">
+         <div style="position:relative;text-align:center;color:white;">
+            <img src="/Images/electronics.jpg" alt="Electronics" style="width:100%;height:200px">
+            <div style="position:absolute; top:20%;left:10%;transform: translate(-20%, -10%);">
+                <MudText Typo="Typo.h6" Color="Color.Warning" Class="ml-n6"><b>Electronics</b></MudText>
+                <MudText Typo="Typo.h5" Class="ml-12"><b>Large collection</b></MudText>
+                <MudText Typo="Typo.h5" Class="ml-2"><b>at low price.</b></MudText>
+                <MudButton Variant="Variant.Text" Color="Color.Secondary" Class="ml-n4 mt-2" Link="/Electronics/products"><b>Discover Now</b></MudButton>
+            </div>
+        </div>
+    </MudItem>
+
+    <MudItem lg="4" md="4" sm="6" xs="12">
+         <div style="position:relative;text-align:center;color:white;">
+            <img src="/Images/fashion.jpg" alt="Fashion" style="width:100%;height:200px">
+            <div style="position:absolute; top:20%;left:10%;transform: translate(-20%, -10%);">
+                <MudText Typo="Typo.h6" Color="Color.Warning" Class="ml-n16"><b>Fashion</b></MudText>
+                <MudText Typo="Typo.h5" Class="ml-6"><b>New collection</b></MudText>
+                <MudText Typo="Typo.h5" Class="ml-12"><b>at the best price.</b></MudText>
+                <MudButton Variant="Variant.Text" Color="Color.Secondary" Class="ml-n6 mt-2" Link="/Fashion/products"><b>Discover Now</b></MudButton>
+            </div>
+        </div>
+    </MudItem>
+
+    <MudItem lg="4" md="4" sm="6" xs="12">
+         <div style="position:relative;text-align:center;color:white;">
+            <img src="/Images/sport.jpg" alt="Sport" style="width:100%;height:200px">
+            <div style="position:absolute; top:20%;left:5%;transform: translate(-20%, -5%);">
+                <MudText Typo="Typo.h6" Color="Color.Warning" Style="margin-left:-25%"><b>Sport</b></MudText>
+                <MudText Typo="Typo.h5" Class="ml-8"><b>Any accessory</b></MudText>
+                <MudText Typo="Typo.h5" Class="ml-16 pl-4"><b>your heart desires.</b></MudText>
+                <MudButton Variant="Variant.Text" Color="Color.Secondary" Class="ml-n4 mt-2" Link="/Sport/products"><b>Discover Now</b></MudButton>
+            </div>
+        </div>
+    </MudItem>
+</MudGrid>
+
+<MudText Typo="Typo.h4" Align="Align.Center"><b>Trending Items</b></MudText>
+<MudDivider DividerType="DividerType.Middle" />
+
+<MudGrid Class="mt-4">
+    @if(ProductList is null)
+    {
+        <MudItem xs="12" md="6" lg="4">
+            <MudCard>
+                <MudSkeleton SkeletonType="SkeletonType.Rectangle" Height="200px"/>
+                <MudCardContent>
+                    <MudSkeleton Width="30%" Height="42px;" />
+                    <MudSkeleton Width="80%" />
+                    <MudSkeleton Width="100%" />
+                </MudCardContent>
+                <MudCardActions>
+                    <MudSkeleton Width="64px" Height="40px" Class="ml-2" />
+                    <MudSkeleton Width="105px" Height="40px" Class="ml-3" />
+                </MudCardActions>
+            </MudCard>
+        </MudItem>
+        <MudItem xs="12" md="6" lg="4">
+            <MudCard>
+                <MudSkeleton SkeletonType="SkeletonType.Rectangle" Height="200px"/>
+                <MudCardContent>
+                    <MudSkeleton Width="30%" Height="42px;" />
+                    <MudSkeleton Width="80%" />
+                    <MudSkeleton Width="100%" />
+                </MudCardContent>
+                <MudCardActions>
+                    <MudSkeleton Width="64px" Height="40px" Class="ml-2" />
+                    <MudSkeleton Width="105px" Height="40px" Class="ml-3" />
+                </MudCardActions>
+            </MudCard>
+        </MudItem>
+        <MudItem xs="12" md="6" lg="4">
+            <MudCard>
+                <MudSkeleton SkeletonType="SkeletonType.Rectangle" Height="200px"/>
+                <MudCardContent>
+                    <MudSkeleton Width="30%" Height="42px;" />
+                    <MudSkeleton Width="80%" />
+                    <MudSkeleton Width="100%" />
+                </MudCardContent>
+                <MudCardActions>
+                    <MudSkeleton Width="64px" Height="40px" Class="ml-2" />
+                    <MudSkeleton Width="105px" Height="40px" Class="ml-3" />
+                </MudCardActions>
+            </MudCard>
+        </MudItem>
+    }
+    else
+    {
+        @if(!ProductList.Any())
+        {
+            <MudText Typo="Typo.body1" Class="mx-auto">No items were found.</MudText>
+        }
+        @foreach (var product in ProductList)
+        {
+            <MudItem xs="12" md="6" lg="4">
+                <ProductCard Product="product" />
+            </MudItem>
+        }
+    }
+</MudGrid>
+
+@code {
+    private bool arrows = true;
+    private bool bullets = true;
+    private bool autocycle = true;
+    private Transition transition = Transition.Slide;
+
+    public IEnumerable<Product> ProductList { get; set; }
+
+    [Inject] public IProductsService ProductsService{ get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        ProductList = await ProductsService.GetProductsAsync();
+        ProductList = ProductList.Take(3);
+    }
+}
