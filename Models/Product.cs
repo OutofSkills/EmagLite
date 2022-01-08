@@ -28,6 +28,7 @@ namespace Models
         public int CategoryId { get; set; }
         public int TypeId { get; set; }
         public int BrandId { get; set; }
+        public int OrderId { get; set; }
 
         [ForeignKey(nameof(RatingId))]
         public ProductRating Rating{ get; set; }
@@ -40,6 +41,10 @@ namespace Models
 
         [ForeignKey(nameof(BrandId))]
         public virtual ProductBrand Brand { get; set; }
+
+        [ForeignKey(nameof(OrderId))]
+        public virtual ICollection<OrderProduct> Orders { get; set; }
+
 
         public Product()
         {

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Models.ViewModels
 {
-    public class ProductInCart
+    public class ProductInStorage
     {
         public int ProductId { get; set; }
         public int Quantity { get; set; }

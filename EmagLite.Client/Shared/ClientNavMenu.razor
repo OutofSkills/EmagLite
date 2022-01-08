@@ -1,5 +1,31 @@
 ﻿<MudNavMenu>
-    <MudNavLink Href="" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Home">Home</MudNavLink>
-    <MudNavLink Href="/counter" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Add">Counter</MudNavLink>
-    <MudNavLink Href="/fetchdata" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.List">Fetch data</MudNavLink>
+    <MudNavLink Href="/home" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Home">Home</MudNavLink>
+    <MudNavGroup Title="Products" Icon="@Icons.Material.Filled.Category" Expanded="false">
+        @if(categories is not null)
+        {
+            @foreach(var category in categories)
+            {
+                <MudNavLink Href=@("/" + @category.Name + "/products")>@(ToTitleCase(category.Name))</MudNavLink>
+            }
+        }
+    </MudNavGroup>
+    <MudNavLink Href="/orders" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.ShoppingBag">Orders</MudNavLink>
 </MudNavMenu>
+
+@code{
+    [Inject] public ICategoriesService CategoriesService{ get; set; }
+
+    private IEnumerable<Category> categories;
+
+    protected override async Task OnInitializedAsync()
+    {
+        categories = await CategoriesService.GetCategoriesAsync();
+    }
+
+     private string ToTitleCase(string str)
+    {
+        TextInfo textInfo = new CultureInfo("en-US", false).TextInfo;
+
+        return textInfo.ToTitleCase(str);
+    }
+}

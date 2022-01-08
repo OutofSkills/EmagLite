@@ -22,7 +22,8 @@ namespace EmagLite.Client.Services.Implementations
         {
             var response = await httpClient.GetAsync(UriBase + $"/api/Users/{id}");
             var responseString = await response.Content.ReadAsStringAsync();
-
+            if (String.IsNullOrEmpty(responseString) || !response.IsSuccessStatusCode)
+                throw new Exception("Server error. User not found");
             var user = JsonSerializer.Deserialize<User>(responseString, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
             return user;

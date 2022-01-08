@@ -11,7 +11,7 @@ namespace EmagLite.Client.Services.Interfaces
         Task IncreaseProductQuantity(int productId);
         Task DecreaseProductQuantity(int productId);
         Task RemoveProductFromCart(int productId);
-        Task<Dictionary<int, Product>> GetProductsAsync();
-        Task<ProductInCart> GetProductAsync(int productId);
+        Task<List<CartItem>> GetProductsAsync();
+        Task<CartItem> GetProductAsync(int productId);
     }
 }

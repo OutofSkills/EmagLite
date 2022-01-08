@@ -99,7 +99,7 @@
             {
                 @if(!productsInCart.Any())
                 {
-                    <MudText Typo="Typo.body1" Align="Align.Center">Your cart is empty. @productsInCart.Count</MudText>
+                    <MudText Typo="Typo.body1" Align="Align.Center">Your cart is empty.</MudText>
                 }
                 @foreach(var product in productsInCart)
                 {
@@ -107,25 +107,25 @@
                         <MudElement Class="d-flex">
                             <MudText Typo="Typo.h5" Class="ma-2">Sold and delivered by EmagLite store.</MudText>
                             <MudSpacer />
-                            <MudIconButton Icon="@Icons.Filled.DeleteOutline" Color="Color.Error" OnClick="@(() => HandleRemoveFromCart(product.Value.Id))" />
+                            <MudIconButton Icon="@Icons.Filled.DeleteOutline" Color="Color.Error" OnClick="@(() => HandleRemoveFromCart(product.Product.Id))" />
                         </MudElement>
                         <MudPaper Class="ma-4">
                             <MudElement Class="d-flex flex-row">
-                                <MudAvatar Class="ma-4" Square="true" Image="@string.Format("data:image/svg+xml+jpg+jpeg;base64,{0}", Convert.ToBase64String(product.Value.Image))"  Style="height:240px; width:180px;"/>
+                                <MudAvatar Class="ma-4" Square="true" Image="@string.Format("data:image/svg+xml+jpg+jpeg;base64,{0}", Convert.ToBase64String(product.Product.Image))"  Style="height:240px; width:180px;"/>
                                 
                                 <MudElement Class="d-flex flex-column ma-4">
-                                    <MudText Typo="Typo.h6" Class="mb-4"><b>@product.Value.Name</b></MudText>
-                                    <MudText Typo="Typo.body2" Class="mb-2">Availability: @(product.Value.Amount > 0 ? "In stock" : "Out of stock")</MudText>
-                                     <MudText Typo="Typo.body2" Class="mb-2">Guarantee: @product.Value.GuaranteeDays days </MudText>
+                                    <MudText Typo="Typo.h6" Class="mb-4"><b>@product.Product.Name</b></MudText>
+                                    <MudText Typo="Typo.body2" Class="mb-2">Availability: @(product.Product.Amount > 0 ? "In stock" : "Out of stock")</MudText>
+                                     <MudText Typo="Typo.body2" Class="mb-2">Guarantee: @product.Product.GuaranteeDays days </MudText>
                                 </MudElement >
 
                                 <MudSpacer />
                                 <MudElement>
-                                    <MudText Typo="Typo.h6" Class="ma-4 mb-4"><b>@product.Value.Price Lei</b></MudText>
+                                    <MudText Typo="Typo.h6" Class="ma-4 mb-4"><b>@product.Product.Price Lei</b></MudText>
                                     <MudElement Class="d-flex flex-row">
-                                        <MudIconButton Icon="@Icons.Material.Filled.Remove" Class="ma-1" aria-label="decrease" OnClick="@(() => DecreaseQuantity(product.Value.Id))"/>
-                                        <MudText Typo="Typo.overline" Class="mt-3">@product.Key</MudText>
-                                        <MudIconButton Icon="@Icons.Filled.Add" Class="ma-1" aria-label="increase" OnClick="@(() => IncreaseQuantity(product.Value.Id))" />
+                                        <MudIconButton Icon="@Icons.Material.Filled.Remove" Class="ma-1" aria-label="decrease" OnClick="@(() => DecreaseQuantity(product.Product.Id))" Disabled="@(product.Quantity<=1)"/>
+                                        <MudText Typo="Typo.overline" Class="mt-3">@product.Quantity</MudText>
+                                        <MudIconButton Icon="@Icons.Filled.Add" Class="ma-1" aria-label="increase" OnClick="@(() => IncreaseQuantity(product.Product.Id))" />
                                     </MudElement>
                                 </MudElement>
                             </MudElement>
@@ -135,17 +135,17 @@
                             <MudElement Class="d-flex flex-column">
                                 <MudElement Class="d-flex ma-2">
                                     <MudText Typo="Typo.body1">Products price: &nbsp; </MudText>
-                                    <MudText Typo="Typo.body1">@(product.Value.Price * product.Key) Lei </MudText>
+                                    <MudText Typo="Typo.body1">@(product.Product.Price * product.Quantity) Lei </MudText>
                                 </MudElement>
 
                                 <MudElement Class="d-flex ma-2">
                                     <MudText Typo="Typo.body1">Delivery price: &nbsp;</MudText>
-                                    <MudText Typo="Typo.body1">@product.Value.DeliveryPrice Lei </MudText>
+                                    <MudText Typo="Typo.body1">@product.Product.DeliveryPrice Lei </MudText>
                                 </MudElement>
 
                                 <MudElement Class="d-flex ma-2">
                                     <MudText Typo="Typo.body1"><b>Subtotal price: &nbsp; </b></MudText>
-                                    <MudText Typo="Typo.body1">@(product.Value.Price * product.Key)  Lei </MudText>
+                                    <MudText Typo="Typo.body1">@(product.Product.Price * product.Quantity)  Lei </MudText>
                                 </MudElement>
                              </MudElement>
                         </MudElement>
@@ -215,8 +215,9 @@
 @code {
     [Inject] public ICartService CartService{ get; set; }
     [Inject] public IProductsService ProductsService{ get; set; }
+    [Inject] public AppState AppState{ get; set; }
 
-    private Dictionary<int, Product> productsInCart;
+    private IEnumerable<CartItem> productsInCart;
 
     private decimal productsPrice, productsDeliveryPrice, totalPrice;
 
@@ -229,6 +230,9 @@
     {
         await CartService.RemoveProductFromCart(productId);
         await GetCartProducts();
+
+        if(!productsInCart.Any())
+            AppState.SetCartItems(isEmpty: true);
     }
 
     private async Task GetCartProducts()
@@ -249,8 +253,8 @@
 
         foreach(var productInCart in productsInCart)
         {
-            productsPrice += productInCart.Value.Price * productInCart.Key;
-            productsDeliveryPrice += productInCart.Value.DeliveryPrice;
+            productsPrice += productInCart.Product.Price * productInCart.Quantity;
+            productsDeliveryPrice += productInCart.Product.DeliveryPrice;
         }
 
         totalPrice = productsPrice + productsDeliveryPrice;

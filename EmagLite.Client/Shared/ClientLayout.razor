@@ -18,8 +18,48 @@
                 <MudIconButton Icon="@Icons.Material.Filled.ShoppingCart" Color="Color.Inherit" Link="/account/cart" />
             </MudBadge>
         }
+        <AuthorizeView>
+            <Authorized>
+                <MudMenu Direction="Direction.Left" OffsetX="true" Dense="true" Class="mt-1 ml-4">
+                    <ActivatorContent>
+                        @if (user.Avatar is null)
+                        {
+                            <MudAvatar Class="text-light mt-n2" Style="border-color:white" Variant="Variant.Outlined" Size="Size.Small">
+                                @(context.User.FindFirst(ClaimTypes.Name).Value.ToUpper().Substring(0, 1))
+                            </MudAvatar>
+                        }
+                        else
+                        {
+                            <MudAvatar Image="@string.Format("data:image/svg+xml+jpg+jpeg;base64,{0}", Convert.ToBase64String(user.Avatar))" />
+                        }
+                    </ActivatorContent>
+                    <ChildContent>
+                        @if (user.Avatar is null)
+                        {
+                            <PersonCard Class="mt-n2" UserName=@(context.User.FindFirst(ClaimTypes.Name).Value)
+                                        Role=@(context.User.FindFirst(ClaimTypes.Role).Value)
+                                        Avatar=@(context.User.FindFirst(ClaimTypes.Name).Value.ToUpper().Substring(0, 1)) />
+                        }
+                        else
+                        {
+                            <PersonCard Class="mt-n2" UserName=@(context.User.FindFirst(ClaimTypes.Name).Value)
+                                        Role=@(context.User.FindFirst(ClaimTypes.Role).Value)
+                                        Avatar="@string.Format("data:image/svg+xml+jpg+jpeg;base64,{0}", Convert.ToBase64String(user.Avatar))" />
+                        }
+                        <MudDivider Class="mb-2" />
+                        <MudListItem Text="Account" Icon="@Icons.Material.Outlined.Person" Href="/settings" />
+                        <MudListItem Text="Logout" Icon="@Icons.Material.Outlined.Login" Href="/authentication/logout" />
+                    </ChildContent>
+                </MudMenu>
+            </Authorized>
+            <NotAuthorized>
+                <MudIconButton Color="Color.Inherit" Title="Register" Link="/authentication/register">
+                    <i class="fas fa-user-plus" title="Register" aria-hidden="true"></i>
+                </MudIconButton>
+                <MudIconButton Icon="@Icons.Material.Filled.Login" Color="Color.Inherit" Title="Login" Link="/authentication/login" />
+            </NotAuthorized>
+        </AuthorizeView>
 
-        <MudIconButton Icon="@Icons.Material.Filled.Login" Color="Color.Inherit" Link="/authentication/login" Target="_blank" />
     </MudAppBar>
     <MudDrawer @bind-Open="_drawerOpen" Elevation="1">
         <MudDrawerHeader>
@@ -35,22 +75,32 @@
 </MudLayout>
 
 @code {
-    [Inject] public ICartService CartService{ get; set; }
+    private User user = new();
 
+    [Inject] public ICartService CartService{ get; set; }
     [Inject] public AppState AppState{ get; set; }
+    [Inject] public IUsersService UsersService{ get; set; }
+    [Inject] public AuthenticationStateProvider AuthStateProvider{ get; set; }
 
     protected override async Task OnInitializedAsync()
     {
         AppState.OnChange += StateHasChanged;
 
+        var id = await GetLoggedUserId();
+        if(id != 0)
+            user = await UsersService.GetUserAsync(id);
+
         var products = await CartService.GetProductsAsync();
-        if (products is null)
+        if (products is not null)
         {
-            AppState.isCartEmpty = true;
-        }
-        else if (products.Any())
-        {
-            AppState.isCartEmpty = false;
+            if (products.Any())
+            {
+                AppState.isCartEmpty = false;
+            }
+            else
+            {
+                AppState.isCartEmpty = true;
+            }
         }
         else
         {
@@ -63,6 +113,19 @@
     void DrawerToggle()
     {
         _drawerOpen = !_drawerOpen;
+    }
+
+    private async Task<int> GetLoggedUserId()
+    {
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        if (authState.User.Identity.IsAuthenticated)
+        {
+            var userId = authState.User.FindFirst(ClaimTypes.NameIdentifier).Value;
+
+            return int.Parse(userId);
+        }
+
+        return 0;
     }
 
     public void Dispose()

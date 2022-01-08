@@ -18,7 +18,7 @@ namespace DataAccess.UnitOfWork
         IUsersRepository UsersRepository { get; }
         IBrandsRepository BrandsRepository { get; }
         ITypesRepository TypesRepository { get; }
-
+        IOrdersRepository OrdersRepository { get; }
 
         /// <summary>
         /// Saves all pending changes

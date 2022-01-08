@@ -1,0 +1,194 @@
+﻿@page "/account/cart/checkout"
+
+@layout ClientLayout
+
+<AuthorizeView Context="authContext">
+    <Authorized>
+        <MudGrid Spacing="3">
+    <MudItem lg="8" md="8" sm="12" xs=12> 
+        @if(order.User is null || order.User.Address is null)
+        {
+            <MudPaper>
+                <MudSkeleton Height="50px" Class="ma-2" Width="100px" />
+
+                <MudSkeleton Height="40px" Class="ma-2 mx-2 mt-2" Width="500px" />
+                <MudSkeleton Height="40px" Class="ma-2 mx-2" Width="500px" />
+                <MudSkeleton Height="40px" Class="ma-2 mx-2" Width="500px" />
+                <MudSkeleton Height="40px" Class="ma-2 mx-2" Width="500px" />
+                <MudSkeleton Height="40px" Class="ma-2 mx-2" Width="500px" />
+                <MudSkeleton Height="40px" Class="ma-2 mx-2" Width="500px" />
+
+                <MudSkeleton Height="50px" Class="ml-2 ma-2" Width="100px" />
+            </MudPaper>            
+        }
+        else
+        {
+            <MudPaper>
+                <MudText Typo="Typo.h5" Class="ma-2 mb-2"><b>Order Details</b></MudText>
+                <EditForm Model="order" OnValidSubmit="HandleMakeOrder">
+                    <MudTextField Label="First name" @bind-Value="order.User.FirstName" Class="ma-2 mx-2 mt-2" Disabled="true" />
+                    <MudTextField Label="Last name" @bind-Value="order.User.LastName" Class="ma-2 mx-2" Disabled="true" />
+                    <MudTextField Label="Phone Number" @bind-Value="order.User.PhoneNumber" Class="ma-2 mx-2" For="@(() => order.User.PhoneNumber)" />
+                    <MudTextField Label="County" @bind-Value="order.User.Address.County" Class="ma-2 mx-2" For="@(() => order.User.Address.County)" />
+                    <MudTextField Label="City" @bind-Value="order.User.Address.City" Class="ma-2 mx-2" For="@(() => order.User.Address.City)" />
+                    <MudTextField Label="Street" @bind-Value="order.User.Address.Street" Class="ma-2 mx-2" For="@(() => order.User.Address.Street)" />
+
+                    <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Class="ml-2 ma-2" Disabled="@(!productsInCart.Any())">Make Order</MudButton>
+                </EditForm>
+            </MudPaper>
+        }
+    </MudItem>
+
+    <MudItem lg="4" md="4" sm="12" xs=12> 
+        @if(productsInCart is null)
+        {
+             <MudPaper Class="d-flex flex-column mt-2">
+                <MudElement Class="d-flex flex-row ma-2 mb-2">
+                    <MudSkeleton Height="45px" Width="100px" />
+                    <MudSpacer />
+                    <MudSkeleton Height="45px" Width="50px" />
+                </MudElement>
+
+                <MudDivider DividerType="DividerType.Middle" Class="mb-2" />
+
+                <MudElement Class="d-flex flex-row ma-2 mx-4">
+                    <MudSkeleton Height="35px" Width="100px" />
+                    <MudSpacer />
+                    <MudSkeleton Height="35px" Width="70px" />
+                </MudElement>
+
+                 <MudElement Class="d-flex flex-row ma-2 mx-4">
+                    <MudSkeleton Height="35px" Width="100px" />
+                    <MudSpacer />
+                    <MudSkeleton Height="35px" Width="70px" />
+                </MudElement>
+                
+
+                <MudDivider DividerType="DividerType.Middle" Class="mb-2" />
+
+                <MudElement Class="d-flex flex-row ma-2 mx-4">
+                    <MudSkeleton Height="45px" Width="80px" />
+                    <MudSpacer />
+                    <MudSkeleton Height="45px" Width="80px" />
+                </MudElement>
+            </MudPaper>
+        }
+        else
+        {
+            <MudPaper Class="d-flex flex-column mt-2">
+                <MudElement Class="d-flex flex-row ma-2 mb-2">
+                    <MudText Typo="Typo.h5"><b>Cart</b></MudText>
+                    <MudSpacer />
+                    <MudElement Class="d-flex felx-row">
+                            <MudIcon Icon="@Icons.Filled.ShoppingBag" />
+                            <MudText Typo="Typo.body1" Class="mt-1">@productsInCart.Count()</MudText>
+                    </MudElement>
+                </MudElement>
+
+                <MudDivider DividerType="DividerType.Middle" Class="mb-2" />
+            
+                @if(!productsInCart.Any())
+                {
+                    <MudText Class="ma-2 mb-2 mx-4">The cart is empty.</MudText>
+                }
+
+                @foreach(var item in productsInCart)
+                {
+                        <MudElement Class="d-flex flex-row ma-2 mb-2 mx-4">
+                            <MudText Typo="Typo.body1"><b>@item.Product.Name</b> @("x" + item.Quantity)</MudText>
+                            <MudSpacer />
+                            <MudText Typo="Typo.body1">@((item.Product.Price * item.Quantity) + item.Product.DeliveryPrice) Lei</MudText>
+                        </MudElement>
+                }
+
+                <MudDivider DividerType="DividerType.Middle" Class="mb-2" />
+
+                <MudElement Class="d-flex flex-row ma-2 mx-4">
+                    <MudText Typo="Typo.h6"><b>Total</b></MudText>
+                    <MudSpacer />
+                    <MudText Typo="Typo.body1" Class="mt-1"><b>@totalPrice Lei</b></MudText>
+                </MudElement>
+            </MudPaper>
+        }
+    </MudItem>
+</MudGrid>
+    </Authorized>
+</AuthorizeView>
+
+
+@code {
+    private Order order = new();
+    private IEnumerable<CartItem> productsInCart{ get; set; }
+    private decimal totalPrice;
+
+    [Inject] public AuthenticationStateProvider AuthStateProvider { get; set; }
+    [Inject] public IUsersService UsersService{ get; set; }
+    [Inject] public ICartService CartService{ get; set; }
+    [Inject] public IOrdersService OrdersService{  get;  set; }
+    [Inject] public ISnackbar Snackbar{ get; set; }
+    [Inject] public NavigationManager NavManager{ get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var id = await GetLoggedUserId();
+        User user;
+        if (id != 0)
+        {
+            user = await UsersService.GetUserAsync(id);
+
+            if (user is null)
+            {
+                Snackbar.Add("You should be logged in to continue. Please try again!", Severity.Error);
+                NavManager.NavigateTo("/authentication/login");
+            }
+
+            order.User = user;
+            if (order.User.Address is null)
+                order.User.Address = new();
+
+            productsInCart = await CartService.GetProductsAsync();
+
+            CalculateTotalPrice();
+        }
+
+    }
+
+    private void CalculateTotalPrice()
+    {
+        totalPrice = 0;
+
+        if(productsInCart is not null)
+        {
+            foreach(var item in productsInCart)
+            {
+                totalPrice += (item.Product.Price * item.Quantity) + item.Product.DeliveryPrice;
+            }
+
+        }
+    }
+
+    private async Task HandleMakeOrder()
+    {
+        foreach(var item in productsInCart)
+        {
+            order.Products.Add(new OrderProduct() {Product = item.Product, ProductId = item.Product.Id, Quantity = item.Quantity });
+        }
+
+        order.OrderDate = DateTime.Now;
+        await OrdersService.MakeOrderAsync(order);
+    }
+
+    private async Task<int> GetLoggedUserId()
+    {
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        if (authState.User.Identity.IsAuthenticated)
+        {
+            var userId = authState.User.FindFirst(ClaimTypes.NameIdentifier).Value;
+
+            return int.Parse(userId);
+        }
+
+        return 0;
+    }
+
+}

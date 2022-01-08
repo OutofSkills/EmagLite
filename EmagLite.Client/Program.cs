@@ -36,6 +36,7 @@ namespace EmagLite.Client
             builder.Services.AddScoped<IBrandsService, BrandsService>();
             builder.Services.AddScoped<ITypesService, TypesService>();
             builder.Services.AddScoped<ICartService, CartService>();
+            builder.Services.AddScoped<IOrdersService, OrdersService>();
             builder.Services.AddSingleton<AppState>();
 
             builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();

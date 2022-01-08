@@ -12,7 +12,21 @@ namespace DataAccess
     public class AppDbContext: IdentityDbContext<User, Role, int>
     {
         public AppDbContext(DbContextOptions<AppDbContext> options): base(options) { }
-       
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<OrderProduct>()
+                .HasOne(op => op.Order)
+                .WithMany(p => p.Products)
+                .HasForeignKey(op => op.OrderId);
+            modelBuilder.Entity<OrderProduct>()
+                .HasOne(op => op.Product)
+                .WithMany(p => p.Orders)
+                .HasForeignKey(op => op.OrderId);
+
+            base.OnModelCreating(modelBuilder);
+        }
+
         public DbSet<Product> Products { get; set; }
         public DbSet<Category> Categories { get; set; }
         public DbSet<ProductRating> ProductRatings { get; set; }
@@ -20,5 +34,6 @@ namespace DataAccess
         public DbSet<ProductType> ProductTypes { get; set; }
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrderProduct> OrderProducts { get; set; }
+        public DbSet<OrderStatus> OrdersStatuses { get; set;}
     }
 }

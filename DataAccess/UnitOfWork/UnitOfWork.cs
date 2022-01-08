@@ -17,6 +17,8 @@ namespace DataAccess.UnitOfWork
         public IUsersRepository UsersRepository { get; private set; }
         public IBrandsRepository BrandsRepository { get; private set;}
         public ITypesRepository TypesRepository { get; private set; }
+        public IOrdersRepository OrdersRepository { get; private set;}
+
 
 
         /// <summary>
@@ -36,6 +38,7 @@ namespace DataAccess.UnitOfWork
             UsersRepository = new UsersRepository(context);
             BrandsRepository = new BrandsRepository(context);
             TypesRepository = new TypesRepository(context);
+            OrdersRepository = new OrdersRepository(context);
         }
 
         /// <summary>
