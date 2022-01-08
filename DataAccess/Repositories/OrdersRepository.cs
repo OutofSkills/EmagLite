@@ -43,11 +43,7 @@ namespace RESTApi.DataAccess.Repositories
                 _context.Attach(product.Product);
                 _context.OrderProducts.Add(product);
                 _context.SaveChanges();
-
-                order.Products.Add(product);
             }
-            _context.Orders.Update(order);
-            _context.SaveChanges();
         }
     }
 }

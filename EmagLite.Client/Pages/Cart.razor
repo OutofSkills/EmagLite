@@ -206,7 +206,7 @@
                     <MudText Typo="Typo.body1"><b>@totalPrice Lei </b></MudText>
                 </MudElement>
 
-                <MudButton ButtonType="ButtonType.Submit" Disabled=@(!productsInCart.Any()) StartIcon="@Icons.Filled.KeyboardDoubleArrowRight" Variant="Variant.Filled" IconColor="Color.Error" Color="Color.Primary" Class="ma-2">Continue</MudButton>
+                <MudButton ButtonType="ButtonType.Submit" Disabled=@(!productsInCart.Any()) StartIcon="@Icons.Filled.KeyboardDoubleArrowRight" Variant="Variant.Filled" IconColor="Color.Error" Color="Color.Primary" Class="ma-2" Link="/account/cart/checkout">Continue</MudButton>
             </MudPaper>
         }
     </MudItem>

@@ -176,6 +176,11 @@
 
         order.OrderDate = DateTime.Now;
         await OrdersService.MakeOrderAsync(order);
+
+        foreach(var item in productsInCart)
+        {
+           await CartService.RemoveProductFromCart(item.Product.Id);
+        }
     }
 
     private async Task<int> GetLoggedUserId()
