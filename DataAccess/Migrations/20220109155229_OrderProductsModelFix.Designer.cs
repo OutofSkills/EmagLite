@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace RESTApi.DataAccess.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20220108204722_OrderProduct")]
-    partial class OrderProduct
+    [Migration("20220109155229_OrderProductsModelFix")]
+    partial class OrderProductsModelFix
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -182,16 +182,24 @@ namespace RESTApi.DataAccess.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
+                    b.Property<int>("AddressId")
+                        .HasColumnType("int");
+
                     b.Property<DateTime>("OrderDate")
                         .HasColumnType("datetime2");
 
                     b.Property<int>("StatusId")
                         .HasColumnType("int");
 
+                    b.Property<decimal>("TotalPrice")
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<int>("UserId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("AddressId");
 
                     b.HasIndex("StatusId");
 
@@ -220,6 +228,8 @@ namespace RESTApi.DataAccess.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("OrderId");
+
+                    b.HasIndex("ProductId");
 
                     b.ToTable("OrderProducts");
                 });
@@ -395,9 +405,6 @@ namespace RESTApi.DataAccess.Migrations
                     b.Property<int>("AccessFailedCount")
                         .HasColumnType("int");
 
-                    b.Property<int>("AddressId")
-                        .HasColumnType("int");
-
                     b.Property<byte[]>("Avatar")
                         .HasColumnType("varbinary(max)");
 
@@ -456,8 +463,6 @@ namespace RESTApi.DataAccess.Migrations
                         .HasColumnType("nvarchar(256)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("AddressId");
 
                     b.HasIndex("NormalizedEmail")
                         .HasDatabaseName("EmailIndex");
@@ -525,6 +530,12 @@ namespace RESTApi.DataAccess.Migrations
 
             modelBuilder.Entity("Models.Order", b =>
                 {
+                    b.HasOne("Models.Address", "OrderAddress")
+                        .WithMany()
+                        .HasForeignKey("AddressId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("Models.OrderStatus", "Status")
                         .WithMany()
                         .HasForeignKey("StatusId")
@@ -536,6 +547,8 @@ namespace RESTApi.DataAccess.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("OrderAddress");
 
                     b.Navigation("Status");
 
@@ -552,7 +565,7 @@ namespace RESTApi.DataAccess.Migrations
 
                     b.HasOne("Models.Product", "Product")
                         .WithMany("Orders")
-                        .HasForeignKey("OrderId")
+                        .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -598,17 +611,9 @@ namespace RESTApi.DataAccess.Migrations
 
             modelBuilder.Entity("Models.User", b =>
                 {
-                    b.HasOne("Models.Address", "Address")
-                        .WithMany()
-                        .HasForeignKey("AddressId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("Models.Role", "Role")
                         .WithMany("Users")
                         .HasForeignKey("RoleId");
-
-                    b.Navigation("Address");
 
                     b.Navigation("Role");
                 });

@@ -22,7 +22,7 @@ namespace DataAccess
             modelBuilder.Entity<OrderProduct>()
                 .HasOne(op => op.Product)
                 .WithMany(p => p.Orders)
-                .HasForeignKey(op => op.OrderId);
+                .HasForeignKey(op => op.ProductId);
 
             base.OnModelCreating(modelBuilder);
         }

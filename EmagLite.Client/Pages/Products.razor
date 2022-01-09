@@ -164,9 +164,11 @@
         FilteredProducts = ProductList = await ProductsService.GetProductsAsync();
         ProductBrands = await BrandsService.GetBrandsAsync();
         ProductTypes = await TypesService.GetTypesAsync();
-
-        priceRange = min = ProductList.Min(p => Convert.ToInt32(p.Price));
-        max = ProductList.Max(p => Convert.ToInt32(p.Price));
+        if (ProductList.Any())
+        {
+            priceRange = min = ProductList.Min(p => Convert.ToInt32(p.Price));
+            max = ProductList.Max(p => Convert.ToInt32(p.Price));
+        }
     }
 
     protected override async Task OnParametersSetAsync()

@@ -1,5 +1,6 @@
 ﻿using DataAccess;
 using DataAccess.Repositories;
+using Microsoft.EntityFrameworkCore;
 using Models;
 using RESTApi.DataAccess.Repositories.Intefaces;
 using System;
@@ -17,7 +18,14 @@ namespace RESTApi.DataAccess.Repositories
         {
         }
 
-        public void MakeOrder(Order order)
+        public async Task<IEnumerable<OrderProduct>> GetOrderProductsAsync(int orderId)
+        {
+            var orderProducts = await _context.OrderProducts.Where(o => o.OrderId == orderId).ToListAsync();
+
+            return orderProducts;
+        }
+
+        public async void MakeOrder(Order order)
         {
             var orderProducts = new List<OrderProduct>();
             foreach(var product in order.Products)
@@ -39,7 +47,8 @@ namespace RESTApi.DataAccess.Repositories
             foreach (var product in orderProducts)
             {
                 product.OrderId = order.Id;
-                _context.Attach(order);
+                product.Order = order;
+
                 _context.Attach(product.Product);
                 _context.OrderProducts.Add(product);
                 _context.SaveChanges();

@@ -11,7 +11,8 @@ namespace RESTApi.Services.Interfaces
     {
         void MakeOrder(Order order);
         Task<IEnumerable<Order>> GetOrdersAsync();
-        Task<Order> GetOrderAsync(int orderId);
+        Task<IEnumerable<OrderProduct>> GetOrderProductsAsync(int orderId);
+        Task<IEnumerable<Order>> GetUserOrdersAsync(int userId);
         Task RemoveOrder(int orderId);
     }
 }

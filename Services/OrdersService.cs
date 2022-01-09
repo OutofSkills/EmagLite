@@ -18,9 +18,15 @@ namespace RESTApi.Services
             this.unitOfWork = unitOfWork;
         }
 
-        public async Task<Order> GetOrderAsync(int orderId)
+        public async Task<IEnumerable<Order>> GetUserOrdersAsync(int userId)
         {
-            return await unitOfWork.OrdersRepository.GetById(orderId);
+            var orders = await unitOfWork.OrdersRepository.GetAll();
+            return orders.Where(o => o.UserId == userId).ToList();
+        }
+
+        public async Task<IEnumerable<OrderProduct>> GetOrderProductsAsync(int orderId)
+        {
+            return await unitOfWork.OrdersRepository.GetOrderProductsAsync(orderId);
         }
 
         public async Task<IEnumerable<Order>> GetOrdersAsync()
@@ -37,8 +43,11 @@ namespace RESTApi.Services
         public async Task RemoveOrder(int orderId)
         {
             var order = await unitOfWork.OrdersRepository.GetById(orderId);
-            if(order != null)
-                await unitOfWork.OrdersRepository.Delete(order);
+            if (order != null)
+            {
+                await unitOfWork.OrdersRepository.Delete(orderId);
+                unitOfWork.SaveChanges();
+            }
         }
     }
 }

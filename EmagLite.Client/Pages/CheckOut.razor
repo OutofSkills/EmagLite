@@ -2,11 +2,13 @@
 
 @layout ClientLayout
 
+<MudText Typo="Typo.h4" Class="mb-2">Checkout</MudText>
+
 <AuthorizeView Context="authContext">
     <Authorized>
         <MudGrid Spacing="3">
     <MudItem lg="8" md="8" sm="12" xs=12> 
-        @if(order.User is null || order.User.Address is null)
+        @if(order.User is null || order.OrderAddress is null)
         {
             <MudPaper>
                 <MudSkeleton Height="50px" Class="ma-2" Width="100px" />
@@ -29,11 +31,22 @@
                     <MudTextField Label="First name" @bind-Value="order.User.FirstName" Class="ma-2 mx-2 mt-2" Disabled="true" />
                     <MudTextField Label="Last name" @bind-Value="order.User.LastName" Class="ma-2 mx-2" Disabled="true" />
                     <MudTextField Label="Phone Number" @bind-Value="order.User.PhoneNumber" Class="ma-2 mx-2" For="@(() => order.User.PhoneNumber)" />
-                    <MudTextField Label="County" @bind-Value="order.User.Address.County" Class="ma-2 mx-2" For="@(() => order.User.Address.County)" />
-                    <MudTextField Label="City" @bind-Value="order.User.Address.City" Class="ma-2 mx-2" For="@(() => order.User.Address.City)" />
-                    <MudTextField Label="Street" @bind-Value="order.User.Address.Street" Class="ma-2 mx-2" For="@(() => order.User.Address.Street)" />
+                    <MudTextField Label="County" @bind-Value="order.OrderAddress.County" Class="ma-2 mx-2" For="@(() => order.OrderAddress.County)" />
+                    <MudTextField Label="City" @bind-Value="order.OrderAddress.City" Class="ma-2 mx-2" For="@(() => order.OrderAddress.City)" />
+                    <MudTextField Label="Street" @bind-Value="order.OrderAddress.Street" Class="ma-2 mx-2" For="@(() => order.OrderAddress.Street)" />
 
-                    <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Class="ml-2 ma-2" Disabled="@(!productsInCart.Any())">Make Order</MudButton>
+                    <MudButton Disabled="@(processing || !productsInCart.Any())" Variant="Variant.Filled" Color="Color.Primary" ButtonType="ButtonType.Submit" Class="ml-2 ma-2">
+                        @if (processing)
+                        {
+                            <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
+                            <MudText Class="ms-2">Processing</MudText>
+                        }
+                        else
+                        {
+                            <MudText>Make Order</MudText>
+                        }
+                    </MudButton>
+
                 </EditForm>
             </MudPaper>
         }
@@ -121,12 +134,15 @@
     private IEnumerable<CartItem> productsInCart{ get; set; }
     private decimal totalPrice;
 
+    private bool processing;
+
     [Inject] public AuthenticationStateProvider AuthStateProvider { get; set; }
     [Inject] public IUsersService UsersService{ get; set; }
     [Inject] public ICartService CartService{ get; set; }
     [Inject] public IOrdersService OrdersService{  get;  set; }
     [Inject] public ISnackbar Snackbar{ get; set; }
     [Inject] public NavigationManager NavManager{ get; set; }
+    [Inject] public AppState AppState{ get; set; }
 
     protected override async Task OnInitializedAsync()
     {
@@ -143,8 +159,8 @@
             }
 
             order.User = user;
-            if (order.User.Address is null)
-                order.User.Address = new();
+            if (order.OrderAddress is null)
+                order.OrderAddress = new();
 
             productsInCart = await CartService.GetProductsAsync();
 
@@ -169,18 +185,28 @@
 
     private async Task HandleMakeOrder()
     {
+        processing = true;
+
+        order.Products.Clear();
         foreach(var item in productsInCart)
         {
             order.Products.Add(new OrderProduct() {Product = item.Product, ProductId = item.Product.Id, Quantity = item.Quantity });
         }
 
         order.OrderDate = DateTime.Now;
+        order.TotalPrice = totalPrice;
+
         await OrdersService.MakeOrderAsync(order);
 
         foreach(var item in productsInCart)
         {
-           await CartService.RemoveProductFromCart(item.Product.Id);
+            await CartService.RemoveProductFromCart(item.Product.Id);
         }
+
+        AppState.SetCartItems(isEmpty: true);
+        processing = false;
+
+        Snackbar.Add("Your order was sent to the store.", Severity.Success);
     }
 
     private async Task<int> GetLoggedUserId()

@@ -1,0 +1,80 @@
+﻿@page "/account/orders"
+
+@layout ClientLayout
+
+<MudText Typo="Typo.h4" Class="mb-4">Orders</MudText>
+
+@if(orders is null)
+{
+    
+
+}
+else
+{
+    @if(!orders.Any())
+    {
+        <MudText Class="ma-2" Typo="Typo.overline">You have no orders at this moment.</MudText>
+    }
+
+    @foreach(var order in orders)
+    {
+        <MudPaper Class="mb-4">
+            <MudText Typo="Typo.h6" Class="ma-2 mb-2"><b>@("#" + order.Id)</b></MudText>
+
+            <MudDivider DividerType="DividerType.Middle" Class="mb-2" />
+
+            @foreach(var orderProduct in order.Products)
+            {
+                <MudElement Class="d-flex flex-row ma-2 mx-4">
+                    <MudText Typo="Typo.body1">@orderProduct.Product.Brand @orderProduct.Product.Name @("x" + orderProduct.Quantity) </MudText>
+
+                    <MudSpacer />
+
+                    <MudText Typo="Typo.body1">@((orderProduct.Product.Price * orderProduct.Quantity) + orderProduct.Product.DeliveryPrice) Lei</MudText>
+                </MudElement>
+            }
+
+            <MudDivider DividerType="DividerType.Middle" Class="mb-2 mt-2" />
+             
+            <MudText Typo="Typo.h6" Class="ma-2 mx-2"><b>Total: &nbsp; @order.TotalPrice Lei</b></MudText>
+        </MudPaper>
+    }
+}
+
+@code {
+    private IEnumerable<Order> orders;
+
+    [Inject] public AuthenticationStateProvider AuthStateProvider { get; set; }
+
+    [Inject] public IOrdersService OrdersService{ get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var id = await GetLoggedUserId();
+
+        if(id != 0)
+        {
+            orders = await OrdersService.GetUserOrders(id);
+
+            foreach(var order in orders)
+            {
+                var orderProducts = await OrdersService.GetOrderProductsAsync(order.Id);
+                order.Products = (ICollection<OrderProduct>)orderProducts;
+            }
+        }
+    }
+
+    private async Task<int> GetLoggedUserId()
+    {
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        if (authState.User.Identity.IsAuthenticated)
+        {
+            var userId = authState.User.FindFirst(ClaimTypes.NameIdentifier).Value;
+
+            return int.Parse(userId);
+        }
+
+        return 0;
+    }
+
+}

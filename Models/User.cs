@@ -20,14 +20,6 @@ namespace Models
         public string LastName { get; set; }
         public byte[] Avatar { get; set; }
 
-        public int AddressId { get; set; }
-
         public virtual Role Role { get; set; }
-        public virtual Address Address { get; set; }
-
-        public User()
-        {
-            Address = new Address();
-        }
     }
 }

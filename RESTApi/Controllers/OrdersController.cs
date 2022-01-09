@@ -29,11 +29,10 @@ namespace RESTApi.Controllers
 
         // GET api/<OrdersController>/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Order>> GetAsync(int id)
+        public async Task<ActionResult<IEnumerable<Order>>> GetAsync(int id)
         {
-            var order = await ordersService.GetOrderAsync(id);
-            var prod = order.Products.Select(o => o.Product);
-            return Ok(order);
+            var orders = await ordersService.GetUserOrdersAsync(id);
+            return Ok(orders);
         }
 
         // POST api/<OrdersController>

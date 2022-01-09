@@ -11,5 +11,6 @@ namespace RESTApi.DataAccess.Repositories.Intefaces
     public interface IOrdersRepository: IRepository<Order>
     {
         void MakeOrder(Order order);
+        Task<IEnumerable<OrderProduct>> GetOrderProductsAsync(int orderId);
     }
 }

@@ -37,6 +37,38 @@ namespace EmagLite.Client.Services.Implementations
             return orders;
         }
 
+        public async Task<IEnumerable<OrderProduct>> GetOrderProductsAsync(int orderId)
+        {
+            var responseMessage = await httpClient.GetAsync(UriBase + $"/api/OrderProducts/{orderId}");
+
+            if (!responseMessage.IsSuccessStatusCode)
+            {
+                // set error message for display, log to console and return
+                var errorMessage = responseMessage.ReasonPhrase;
+                throw new Exception($"There was an error! {errorMessage}");
+            }
+
+            // convert http response data to OrderProduct object
+            var orderProducts = await responseMessage.Content.ReadFromJsonAsync<IEnumerable<OrderProduct>>();
+
+            foreach(var orderProduct in orderProducts)
+            {
+                var response = await httpClient.GetAsync(UriBase + $"/api/Products/{orderProduct.ProductId}");
+
+                if (!responseMessage.IsSuccessStatusCode)
+                {
+                    // set error message for display, log to console and return
+                    var errorMessage = responseMessage.ReasonPhrase;
+                    throw new Exception($"There was an error! {errorMessage}");
+                }
+
+                // convert http response data to Product object
+                orderProduct.Product = await response.Content.ReadFromJsonAsync<Product>();
+            }
+
+            return orderProducts;
+        }
+
         public async Task MakeOrderAsync(Order order)
         {
             // Serialize the object to JSON format to send it in body request
@@ -56,6 +88,23 @@ namespace EmagLite.Client.Services.Implementations
             var requestContent = new StringContent(serializedProduct, Encoding.UTF8, "application/json");
 
             return requestContent;
+        }
+
+        public async Task<IEnumerable<Order>> GetUserOrders(int userId)
+        {
+            var responseMessage = await httpClient.GetAsync(UriBase + $"/api/Orders/{userId}");
+
+            if (!responseMessage.IsSuccessStatusCode)
+            {
+                // set error message for display, log to console and return
+                var errorMessage = responseMessage.ReasonPhrase;
+                throw new Exception($"There was an error! {errorMessage}");
+            }
+
+            // convert http response data to OrderProduct object
+            var orders = await responseMessage.Content.ReadFromJsonAsync<IEnumerable<Order>>();
+
+            return orders;
         }
     }
 }
