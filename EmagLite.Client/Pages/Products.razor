@@ -27,7 +27,13 @@
             <MudSelectItem Value="@("Reviews")" />
         </MudSelect>
     </MudElement>
-    <MudIconButton Icon="@Icons.Filled.FilterList" OnClick="@(() => OpenDrawer(Anchor.End))" />
+    <!--<MudIconButton Icon="@Icons.Filled.FilterList" OnClick="@(() => OpenDrawer(Anchor.End))" />-->
+    <MudSpacer />
+    <MudAutocomplete T="string" Label="Search" SearchFunc="@FilterSearch"
+                         ResetValueOnEmptyText="@resetValueOnEmptyText"
+                         CoerceText="@coerceText" CoerceValue="@coerceValue"
+                         AdornmentIcon="@Icons.Material.Filled.Search" AdornmentColor="Color.Primary" 
+                         ValueChanged="@( (string s) => changeSearchString(s))"/>
 </MudElement>
 
 <MudDivider DividerType="DividerType.Middle" Class="my-3 mb-6"/>
@@ -65,6 +71,7 @@
         </MudContainer>
     </MudNavMenu>
 </MudDrawer>
+
 <MudGrid>
     @if(ProductList is null || FilteredProducts is null)
     {
@@ -149,6 +156,11 @@
 
     /*Sorting value*/
     private string sortValue = "Most Popular";
+    /* Filter search box */
+    private string searchString;
+    private bool resetValueOnEmptyText = true;
+    private bool coerceText = true;
+    private bool coerceValue;
 
     /*Drawer filter*/
     bool open;
@@ -178,6 +190,11 @@
 
     protected override async Task OnParametersSetAsync()
     {
+        await FilterUrlParameters();
+    }
+
+    private async Task FilterUrlParameters()
+    {
         if(!String.IsNullOrEmpty(CategoryName))
         {
             CategoryName = ToTitleCase(CategoryName);
@@ -191,7 +208,42 @@
         {
             var productTypes = await TypesService.GetTypesAsync();
             productType = ProductTypes.Where(t => t.Name.ToLower() == ProductType.ToLower()).FirstOrDefault();
-            FilteredProducts = FilteredProducts.Where(t => t.TypeId == productType.Id).ToList();
+            if (productType is not null)
+                FilteredProducts = ProductList = FilteredProducts.Where(t => t.TypeId == productType.Id).ToList();
+            else
+                FilteredProducts = new List<Product>();
+        }
+    }
+
+    private async Task<IEnumerable<string>> FilterSearch(string value)
+    {
+        // if text is null or empty, don't return values (drop-down will not open)
+        if (string.IsNullOrEmpty(value))
+            return new string[0];
+
+
+
+        FilteredProducts = ProductList.Where(x => x.Name.Contains(value, StringComparison.InvariantCultureIgnoreCase));
+
+        List<string> productNames = new List<string>();
+        if(FilteredProducts.Any())
+        {
+            foreach(var p in FilteredProducts)
+            {
+                productNames.Add(p.Name);
+            }
+        }
+
+        return productNames;
+    }
+
+    private async Task changeSearchString(string s)
+    {
+        searchString = s;
+        await FilterSearch(searchString);
+        if(string.IsNullOrWhiteSpace(searchString))
+        {
+            FilteredProducts = ProductList;
         }
     }
 
