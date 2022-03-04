@@ -1,5 +1,6 @@
 ﻿@page "/home"
 @layout ClientLayout
+@inject NavigationManager NavManager
 
 <MudCarousel Class="mb-4" Style="height:400px;" ShowArrows="@arrows" ShowBullets="@bullets" AutoCycle="@autocycle" TData="object">
     <MudCarouselItem Transition="transition" Color="@Color.Primary">
@@ -56,6 +57,196 @@
         </div>
     </MudItem>
 </MudGrid>
+
+@if(CategoryList is null)
+{
+    <MudSkeleton Width="10%" Height="40px" />
+    <MudSkeleton Width="100%" Height="5px" />
+
+    <MudGrid Class="mt-4 mb-4">
+        <MudItem xs="12" md="6" lg="4">
+            <MudCard>
+                <MudSkeleton SkeletonType="SkeletonType.Rectangle" Height="200px"/>
+                <MudCardContent>
+                    <MudSkeleton Width="30%" Height="42px;" />
+                    <MudSkeleton Width="80%" />
+                    <MudSkeleton Width="100%" />
+                </MudCardContent>
+            </MudCard>
+        </MudItem>
+        <MudItem xs="12" md="6" lg="4">
+            <MudCard>
+                <MudSkeleton SkeletonType="SkeletonType.Rectangle" Height="200px"/>
+                <MudCardContent>
+                    <MudSkeleton Width="30%" Height="42px;" />
+                    <MudSkeleton Width="80%" />
+                    <MudSkeleton Width="100%" />
+                </MudCardContent>
+            </MudCard>
+        </MudItem>
+        <MudItem xs="12" md="6" lg="4">
+            <MudCard>
+                <MudSkeleton SkeletonType="SkeletonType.Rectangle" Height="200px"/>
+                <MudCardContent>
+                    <MudSkeleton Width="30%" Height="42px;" />
+                    <MudSkeleton Width="80%" />
+                    <MudSkeleton Width="100%" />
+                </MudCardContent>
+            </MudCard>
+        </MudItem>
+    </MudGrid>
+}
+else
+{
+    int i = 0;
+    @foreach(var category in CategoryList)
+    {
+        @if(i%2 == 0)
+        {
+            <MudText Typo="Typo.h4" Align="Align.Start"><b>@category.Name</b></MudText>
+        }
+        else
+        {
+            <MudText Typo="Typo.h4" Align="Align.End"><b>@category.Name</b></MudText>
+        }
+        <MudDivider DividerType="DividerType.FullWidth" />
+        i++;
+
+        @if(category.Name == categories.Electronics.ToString())
+        {
+             <!--Type of products in this category-->
+            <MudGrid Class="mt-4 mb-4">
+                <MudItem xs="12" md="6" lg="4">
+                    <MudCard @onclick="@(() => GoToPage($"/{category.Name}/Laptops/products"))" Style="cursor:pointer">
+                        <MudCardMedia Image="https://www.pcworld.com/wp-content/uploads/2022/03/bf-laptop-deals-pcw-2.jpg?quality=50&strip=all&w=1024" Height="200" />
+                        <MudCardContent>
+                             <MudText Typo="Typo.h5">Laptops</MudText>
+                            <MudText Typo="Typo.body2">
+                                Laptops are computers that you can take everywhere with you without hassle.
+                                They can take up very little space and be used for hours without access to power.
+                            </MudText>
+                        </MudCardContent>
+                    </MudCard>
+                </MudItem>
+
+                 <MudItem xs="12" md="6" lg="4">
+                    <MudCard @onclick="@(() => GoToPage($"/{category.Name}/Smartphones/products"))" Style="cursor:pointer">
+                        <MudCardMedia Image="https://assets.pandaily.com/uploads/2020/05/high-end-expensive-flagship-phones-2020-1600x832.jpg" Height="200" />
+                        <MudCardContent>
+                            <MudText Typo="Typo.h5">Smartphones</MudText>
+                            <MudText Typo="Typo.body2">
+                                A combination cellphone and handheld computer that created the greatest tech revolution since the Internet. 
+                                A smartphone does everything a personal computer do.
+                            </MudText>
+                        </MudCardContent>
+                    </MudCard>
+                </MudItem>
+
+                 <MudItem xs="12" md="6" lg="4">
+                    <MudCard @onclick="@(() => GoToPage($"/{category.Name}/Headphones/products"))" Style="cursor:pointer">
+                        <MudCardMedia Image="https://hips.hearstapps.com/hmg-prod.s3.amazonaws.com/images/best-cheap-headphones-multiple-products-1565277231.jpg?crop=1.00xw:1.00xh;0,0&resize=1200:*" Height="200" />
+                        <MudCardContent>
+                             <MudText Typo="Typo.h5">Headphones</MudText>
+                            <MudText Typo="Typo.body2">
+                                Headphones allow listening to music without disturbing others, but they are also used by discerning audiophiles. 
+                                High-quality headphones can provide an extraordi...
+                            </MudText>
+                        </MudCardContent>
+                    </MudCard>
+                </MudItem>
+            </MudGrid>   
+        }
+        else if(category.Name == categories.Fashion.ToString())
+        {
+             <!--Type of products in this category-->
+            <MudGrid Class="mt-4 mb-4">
+                <MudItem xs="12" md="6" lg="4">
+                    <MudCard @onclick="@(() => GoToPage($"/{category.Name}/Jackets/products"))" Style="cursor:pointer">
+                        <MudCardMedia Image="https://hips.hearstapps.com/hmg-prod.s3.amazonaws.com/images/down-jackets-2021-lead-1632405194.jpg?crop=1.00xw:0.892xh;0,0&resize=1200:*" Height="200" />
+                        <MudCardContent>
+                             <MudText Typo="Typo.h5">Jackets</MudText>
+                            <MudText Typo="Typo.body2">
+                               A lightweight, waist-length coat that may be worn by adults or children.  
+                               Some jackets are fashionable, while others serve as protective clothing.
+                            </MudText>
+                        </MudCardContent>
+                    </MudCard>
+                </MudItem>
+
+                 <MudItem xs="12" md="6" lg="4">
+                    <MudCard @onclick="@(() => GoToPage($"/{category.Name}/Sneakers/products"))" Style="cursor:pointer">
+                        <MudCardMedia Image="https://media.gq.com/photos/60d21930430ae505071c3806/16:9/w_2560%2Cc_limit/SNEAKER_GUIDE_OPENER.jpg" Height="200" />
+                        <MudCardContent>
+                            <MudText Typo="Typo.h5">Sneakers</MudText>
+                            <MudText Typo="Typo.body2">
+                               Sneakers were originally sporting apparel, but are today worn much more widely as casual footwear.
+                               They are now very popular, especially with young people.
+                            </MudText>
+                        </MudCardContent>
+                    </MudCard>
+                </MudItem>
+
+                 <MudItem xs="12" md="6" lg="4">
+                    <MudCard @onclick="@(() => GoToPage($"/{category.Name}/Pants/products"))" Style="cursor:pointer">
+                        <MudCardMedia Image="https://media.gq.com/photos/6137a6599ea62dbe4a6ea9c6/master/pass/casual-pants.jpg" Height="200" />
+                        <MudCardContent>
+                             <MudText Typo="Typo.h5">Pants</MudText>
+                            <MudText Typo="Typo.body2">
+                                A piece of clothing that covers the lower part of the body from the waist to the feet, 
+                                consisting of two cylinder-shaped parts, one for each leg, that are joined at the top.
+                            </MudText>
+                        </MudCardContent>
+                    </MudCard>
+                </MudItem>
+            </MudGrid>   
+
+        }else if(category.Name == categories.Sport.ToString())
+        {
+             <!--Type of products in this category-->
+            <MudGrid Class="mt-4 mb-4">
+                <MudItem xs="12" md="6" lg="4">
+                    <MudCard @onclick="@(() => GoToPage($"/{category.Name}/Bicycles/products"))" Style="cursor:pointer">
+                        <MudCardMedia Image="https://hips.hearstapps.com/hmg-prod.s3.amazonaws.com/images/allbikes-1539286251.jpg" Height="200" />
+                        <MudCardContent>
+                             <MudText Typo="Typo.h5">Bicycles</MudText>
+                            <MudText Typo="Typo.body2">
+                              Bicycles are a safe and healthy choice for our communities and societies. 
+                              Especially for city dwellers, bicycles are the prefered method of transit. 
+                            </MudText>
+                        </MudCardContent>
+                    </MudCard>
+                </MudItem>
+
+                 <MudItem xs="12" md="6" lg="4">
+                    <MudCard @onclick="@(() => GoToPage($"/{category.Name}/Dumb-bells/products"))" Style="cursor:pointer">
+                        <MudCardMedia Image="https://www.titaniumstrength.com/media/catalog/product/cache/4cfbef623a6c4a0bb22d6d87c9c90b96/d/2/d2230-275kg.jpg" Height="200" />
+                        <MudCardContent>
+                            <MudText Typo="Typo.h5">Dumb-bells</MudText>
+                            <MudText Typo="Typo.body2">
+                              The dumbbell, a type of free weight, is a piece of equipment used in weight training. 
+                              It can be used individually or in pairs, with one in each hand.
+                            </MudText>
+                        </MudCardContent>
+                    </MudCard>
+                </MudItem>
+
+                 <MudItem xs="12" md="6" lg="4">
+                    <MudCard @onclick="@(() => GoToPage($"/{category.Name}/Accessory/products"))" Style="cursor:pointer">
+                        <MudCardMedia Image="http://buyallsportsgear.com/wp-content/uploads/2014/07/34.jpg" Height="200" />
+                        <MudCardContent>
+                             <MudText Typo="Typo.h5">Accessory</MudText>
+                            <MudText Typo="Typo.body2">
+                                Tools, materials, apparel, and gear used to compete in a sport and varies depending on the sport. 
+                                The equipment ranges from balls, nets, and protective gear like helmets.
+                            </MudText>
+                        </MudCardContent>
+                    </MudCard>
+                </MudItem>
+            </MudGrid>   
+        }
+    }
+}
+
 
 <MudText Typo="Typo.h4" Align="Align.Center"><b>Trending Items</b></MudText>
 <MudDivider DividerType="DividerType.Middle" />
@@ -128,12 +319,23 @@
     private Transition transition = Transition.Slide;
 
     public IEnumerable<Product> ProductList { get; set; }
+    public IEnumerable<Category> CategoryList { get; set; }
+
+    private enum categories{Electronics, Fashion, Sport}
 
     [Inject] public IProductsService ProductsService{ get; set; }
+    [Inject] public ICategoriesService CategoriesService{ get; set; }
 
     protected override async Task OnInitializedAsync()
     {
         ProductList = await ProductsService.GetProductsAsync();
         ProductList = ProductList.Take(3);
+
+        CategoryList = await CategoriesService.GetCategoriesAsync();
+    }
+
+    private void GoToPage(String navLink)
+    {
+        NavManager.NavigateTo(navLink);
     }
 }

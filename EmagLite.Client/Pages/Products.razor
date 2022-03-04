@@ -1,5 +1,6 @@
 ﻿@page "/products"
 @page "/{CategoryName}/products"
+@page "/{CategoryName}/{ProductType}/products"
 
 @layout ClientLayout
 
@@ -131,6 +132,10 @@
     public string CategoryName{ get; set; }
     private Category category{ get; set; }
 
+    [Parameter]
+    public string ProductType{ get; set; }
+    private ProductType productType{ get; set; }
+
     public IEnumerable<Product> ProductList { get; set; }
     public IEnumerable<Product> FilteredProducts { get; set; }
 
@@ -180,6 +185,13 @@
             var categories = await CategoriesService.GetCategoriesAsync();
             category = categories.Where(c => c.Name.ToLower() == CategoryName.ToLower()).FirstOrDefault();
             FilteredProducts = ProductList = ProductList.Where(p => p.CategoryId == category.Id).ToList();
+        }
+
+        if(!String.IsNullOrEmpty(ProductType))
+        {
+            var productTypes = await TypesService.GetTypesAsync();
+            productType = ProductTypes.Where(t => t.Name.ToLower() == ProductType.ToLower()).FirstOrDefault();
+            FilteredProducts = FilteredProducts.Where(t => t.TypeId == productType.Id).ToList();
         }
     }
 
