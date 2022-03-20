@@ -1,0 +1,8 @@
+﻿Id:1
+Nume:Galaxy S21
+Brand:Samsung
+Tip:Smartphone
+Sistem de operare:Android
+Processor:Intel
+Numar nuclee:6
+Tehnologie:8nm

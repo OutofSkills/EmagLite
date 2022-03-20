@@ -1,0 +1,37 @@
+﻿@page "/lucene-results/{searchString}"
+@layout ClientLayout
+@inject HttpClient httpClient
+@using Lucene.Net.Documents;
+<h3>LuceneSearch</h3>
+
+@foreach(var result in results)
+{
+    <MudPaper>
+        @result.Brand
+        @result.Nume
+        @result.Processor
+        @result.NumarNuclee
+        @result.SistemDeOperare
+        @result.Tehnologie
+        @result.Tip
+    </MudPaper>
+
+}
+
+@code {
+    int count;
+    [Parameter]
+    public string searchString { get; set; }
+    List<LuceneResult> results = new List<LuceneResult>();
+
+    protected override async Task OnParametersSetAsync()
+    {
+        var responseMessage = await httpClient.GetAsync($"https://localhost:44351/api/Lucene/{searchString}");
+
+        if (responseMessage.IsSuccessStatusCode)
+        {
+            results = await responseMessage.Content.ReadFromJsonAsync<List<LuceneResult>>();
+            count = results.Count();
+        }
+    }
+}

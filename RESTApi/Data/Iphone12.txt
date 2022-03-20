@@ -1,0 +1,8 @@
+﻿Id:3
+Nume:Iphone 12
+Brand:Apple
+Tip:Smartphone
+Sistem de operare:iOS
+Processor:Intel
+Numar nuclee:6
+Tehnologie:8nm

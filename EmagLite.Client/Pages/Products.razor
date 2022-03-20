@@ -29,11 +29,15 @@
     </MudElement>
     <!--<MudIconButton Icon="@Icons.Filled.FilterList" OnClick="@(() => OpenDrawer(Anchor.End))" />-->
     <MudSpacer />
+    <!--Autocomplete - Select just one item -> return one item-->
     <MudAutocomplete T="string" Label="Search" SearchFunc="@FilterSearch"
                          ResetValueOnEmptyText="@resetValueOnEmptyText"
                          CoerceText="@coerceText" CoerceValue="@coerceValue"
                          AdornmentIcon="@Icons.Material.Filled.Search" AdornmentColor="Color.Primary" 
                          ValueChanged="@( (string s) => changeSearchString(s))"/>
+
+    <!--Filter by name caontaining characters-->
+    <MudTextField T="string" HelperText="Filter" Variant="Variant.Text" Adornment="Adornment.End" AdornmentIcon="@Icons.Filled.Search" Class="mx-8" ValueChanged="@((string s) => SearchFilterProducts(s))" />
 </MudElement>
 
 <MudDivider DividerType="DividerType.Middle" Class="my-3 mb-6"/>
@@ -154,15 +158,14 @@
     [Inject] public ITypesService TypesService{ get; set; }
     [Inject] public ICategoriesService CategoriesService{ get; set; }
 
-    /*Sorting value*/
+    /* Sorting value */
     private string sortValue = "Most Popular";
-    /* Filter search box */
+    /* Autocomplete search box */
     private string searchString;
     private bool resetValueOnEmptyText = true;
     private bool coerceText = true;
     private bool coerceValue;
-
-    /*Drawer filter*/
+    /* Drawer filter */
     bool open;
     Anchor anchor;
     string width = "300px", height = "100%";
@@ -245,6 +248,17 @@
         {
             FilteredProducts = ProductList;
         }
+    }
+
+    private void SearchFilterProducts(string value)
+    {
+        if (string.IsNullOrEmpty(value))
+        {
+            FilteredProducts = ProductList;
+            return;
+        }
+        
+        FilteredProducts = ProductList.Where(x => x.Name.Contains(value, StringComparison.InvariantCultureIgnoreCase));
     }
 
     private string ToTitleCase(string str)

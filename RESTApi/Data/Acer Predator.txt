@@ -1,0 +1,8 @@
+﻿Id:4
+Nume:Predator
+Brand:Aser
+Tip:Laptop
+Sistem de operare:Windows
+Processor:Intel
+Numar nuclee:8
+Tehnologie:12nm

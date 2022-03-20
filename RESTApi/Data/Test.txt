@@ -1,0 +1,8 @@
+﻿Id:test
+Nume:test
+Brand:test
+Tip:test
+Sistem de operare:test
+Processor:test
+Numar nuclee:test
+Tehnologie:test
