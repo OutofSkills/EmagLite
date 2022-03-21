@@ -1,0 +1,8 @@
+﻿Id:18
+Nume:Rog Phone 5
+Brand:Asus
+Tip:Smartphone
+Sistem de operare:Android
+Processor:Intel
+Numar nuclee:8
+Tehnologie:12nm

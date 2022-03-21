@@ -1,0 +1,8 @@
+﻿Id:14
+Nume:Mi 11
+Brand:Xiaomi
+Tip:Smartphone
+Sistem de operare:Android
+Processor:Intel
+Numar nuclee:8
+Tehnologie:12nm

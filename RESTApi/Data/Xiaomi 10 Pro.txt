@@ -1,0 +1,8 @@
+﻿Id:15
+Nume:Mi 10 Pro
+Brand:Xiaomi
+Tip:Smartphone
+Sistem de operare:Android
+Processor:Intel
+Numar nuclee:8
+Tehnologie:12nm

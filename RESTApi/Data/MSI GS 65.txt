@@ -1,0 +1,8 @@
+﻿Id:16
+Nume:GS 65
+Brand:MSI
+Tip:Laptop
+Sistem de operare:Windows
+Processor:Intel
+Numar nuclee:8
+Tehnologie:12nm

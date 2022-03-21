@@ -3,6 +3,7 @@
 @page "/{CategoryName}/{ProductType}/products"
 
 @layout ClientLayout
+@inject NavigationManager NavManager
 
 <MudText Typo="Typo.h4" Class="mb-2">
     @if(String.IsNullOrEmpty(CategoryName))
@@ -27,7 +28,8 @@
             <MudSelectItem Value="@("Reviews")" />
         </MudSelect>
     </MudElement>
-    <!--<MudIconButton Icon="@Icons.Filled.FilterList" OnClick="@(() => OpenDrawer(Anchor.End))" />-->
+    <!--<MudIconButton Icon="@Icons.Filled.FilterList" OnClick="@(() => OpenDrawer(Anchor.End))"
+        />-->
     <MudSpacer />
     <!--Autocomplete - Select just one item -> return one item-->
     <MudAutocomplete T="string" Label="Search" SearchFunc="@FilterSearch"
@@ -37,7 +39,12 @@
                          ValueChanged="@( (string s) => changeSearchString(s))"/>
 
     <!--Filter by name caontaining characters-->
-    <MudTextField T="string" HelperText="Filter" Variant="Variant.Text" Adornment="Adornment.End" AdornmentIcon="@Icons.Filled.Search" Class="mx-8" ValueChanged="@((string s) => SearchFilterProducts(s))" />
+    <MudTextField T="string" HelperText="Filter" Variant="Variant.Text" Adornment="Adornment.End" AdornmentIcon="@Icons.Filled.Search" Class="mx-8" ValueChanged=@((string s) => SearchFilterProducts(s))/>
+</MudElement>
+
+<MudElement Class="d-flex flex-row ma-4">
+     <MudTextField @bind-Value="luceneSearchString" HelperText="Lucene Search" Variant="Variant.Text" Adornment="Adornment.Start" AdornmentIcon="@Icons.Filled.Search" Class="mx-8"/>
+    <MudButton OnClick="@luceneSearch">Search</MudButton>
 </MudElement>
 
 <MudDivider DividerType="DividerType.Middle" Class="my-3 mb-6"/>
@@ -161,7 +168,7 @@
     /* Sorting value */
     private string sortValue = "Most Popular";
     /* Autocomplete search box */
-    private string searchString;
+    private string searchString, luceneSearchString;
     private bool resetValueOnEmptyText = true;
     private bool coerceText = true;
     private bool coerceValue;
@@ -257,7 +264,7 @@
             FilteredProducts = ProductList;
             return;
         }
-        
+
         FilteredProducts = ProductList.Where(x => x.Name.Contains(value, StringComparison.InvariantCultureIgnoreCase));
     }
 
@@ -297,5 +304,10 @@
             var type = ProductTypes.Where(b => b.Name == selectedType).FirstOrDefault();
             FilteredProducts = ProductList.Where(p => p.TypeId == type.Id).ToList();
         }
+    }
+
+    private void luceneSearch()
+    {
+        NavManager.NavigateTo($"/lucene-results/{luceneSearchString}");
     }
 }

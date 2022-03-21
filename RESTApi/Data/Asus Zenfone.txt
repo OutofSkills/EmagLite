@@ -1,0 +1,8 @@
+﻿Id:17
+Nume:Zenfone 8
+Brand:Asus
+Tip:Smartphone
+Sistem de operare:Android
+Processor:Intel
+Numar nuclee:8
+Tehnologie:12nm

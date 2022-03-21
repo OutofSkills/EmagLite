@@ -4,25 +4,58 @@
 @using Lucene.Net.Documents;
 <h3>LuceneSearch</h3>
 
+<MudGrid>
+    <MudItem lg="9" md="9"></MudItem>
+   <MudItem lg="3" md="3">
+       <MudSelect T="string" Label="Order" AnchorOrigin="Origin.BottomCenter" FullWidth=false TextChanged="@((string v) => filterList(v))">
+            <MudSelectItem Value="@("Ascending")" />
+            <MudSelectItem Value="@("Descending")" />
+        </MudSelect>
+   </MudItem>
+</MudGrid>
+
 @foreach(var result in results)
 {
-    <MudPaper>
-        @result.Brand
-        @result.Nume
-        @result.Processor
-        @result.NumarNuclee
-        @result.SistemDeOperare
-        @result.Tehnologie
-        @result.Tip
-    </MudPaper>
+    <MudElement Class="d-inline-flex ma=4">
+        <MudPaper Class="ma-4">
+            <img src="@string.Format("data:image/svg+xml+jpg+jpeg;base64,{0}", Convert.ToBase64String(products.Where(p=>p.Id==result.Id).FirstOrDefault().Image))"
+            style="height:250px" />
+        </MudPaper>
+        <MudPaper Class="d-inline-flex ma-4" Height="250px" Width="750px">
+            <MudElement Class="d-flex flex-column ma-4">
+                <MudText Typo="Typo.h4" Class="mb-4"> 
+                    <MudHighlighter Text="@result.Nume" HighlightedText="@searchString" />
+                </MudText>
+                <MudText Typo="Typo.h6"><b>Brand: </b>
+                    <MudHighlighter Text="@result.Brand" HighlightedText="@searchString" />
+                </MudText>
+                <MudText Typo="Typo.body1"><b>Procesor: </b> 
+                    <MudHighlighter Text="@result.Processor" HighlightedText="@searchString" />
+                    </MudText>
+                <MudText Typo="Typo.body1"><b>Numar nuclee: </b> 
+                    <MudHighlighter Text="@result.NumarNuclee" HighlightedText="@searchString" />
+                    </MudText>
+                <MudText Typo="Typo.body1"><b>Sistem de operare: </b> 
+                    <MudHighlighter Text="@result.SistemDeOperare" HighlightedText="@searchString" />
+                    </MudText>
+                <MudText Typo="Typo.body1"><b>Tehnologie: </b> 
+                    <MudHighlighter Text="@result.Tehnologie" HighlightedText="@searchString" />
+                    </MudText>
+                <MudText Typo="Typo.body1"><b>Tip: </b> 
+                <MudHighlighter Text="@result.Tip" HighlightedText="@searchString" />
+                </MudText>
+            </MudElement>
+        </MudPaper>
+    </MudElement>
 
 }
 
 @code {
-    int count;
     [Parameter]
     public string searchString { get; set; }
+    [Inject] public IProductsService ProductsService{ get; set; }
     List<LuceneResult> results = new List<LuceneResult>();
+    List<Product> products = new List<Product>();
 
     protected override async Task OnParametersSetAsync()
     {
@@ -31,7 +64,24 @@
         if (responseMessage.IsSuccessStatusCode)
         {
             results = await responseMessage.Content.ReadFromJsonAsync<List<LuceneResult>>();
-            count = results.Count();
+            foreach(var result in results)
+            {
+                var product = await ProductsService.GetProductAsync(result.Id);
+                products.Add(product);
+            }
+        }
+    }
+
+    private void filterList(string value)
+    {
+        switch(value)
+        {
+            case "Ascending":
+                results.Reverse();
+                break;
+            case "Descending":
+                results.Reverse();
+                break;
         }
     }
 }
