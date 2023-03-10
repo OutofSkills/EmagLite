@@ -1,0 +1,75 @@
+﻿@page "/management/categories/new-category"
+
+@using System.IO 
+@inject ISnackbar Snackbar
+
+<MudContainer MaxWidth="MaxWidth.Medium">
+            <MudElement Class="d-flex flex-column">
+                <MudText Typo="Typo.h5" Class="mb-3">New Product</MudText>
+                <EditForm Model="Category" OnValidSubmit="HandleSubmit">
+                    <DataAnnotationsValidator />
+                    <MudCard>
+                        <MudCardContent>
+                            <MudTextField Label="Name" Class="mt-3"
+                                          @bind-Value="Category.Name" For="@(() => Category.Name)" />
+                             <MudTextField Label="Description" Class="mt-3"
+                                          @bind-Value="Category.Description" For="@(() => Category.Description)" />
+
+                            <InputFile id="fileInput" OnChange="UploadFile" hidden accept=".jpg, .jpeg, .png" />
+                        </MudCardContent>
+
+                        <MudCardActions>
+                            <MudButton HtmlTag="label"
+                                       Variant="Variant.Filled"
+                                       Color="Color.Secondary"
+                                       StartIcon="@Icons.Filled.CloudUpload"
+                                       Class="mr-auto"
+                                       for="fileInput">
+                                Upload your image
+                            </MudButton>
+
+                            <MudButton Disabled="@(processing)" Variant="Variant.Filled" Color="Color.Primary" ButtonType="ButtonType.Submit" Size="Size.Large" Class="ml-auto">
+                                @if (processing)
+                                {
+                                    <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
+                                    <MudText Class="ms-2">Processing</MudText>
+                                }
+                                else
+                                {
+                                    <MudText>Save Category</MudText>
+                                }
+                            </MudButton>
+                        </MudCardActions>
+                    </MudCard>
+                </EditForm>
+            </MudElement>
+</MudContainer>
+
+@code {
+    public Category Category { get; set; } = new();
+
+    [Inject] public ICategoriesService CategoriesService{ get; set; }
+
+    private bool processing;
+
+    protected async Task HandleSubmit()
+    {
+        processing = true;
+        await CategoriesService.AddCategoryAsync(Category);
+        processing = false;
+
+       Snackbar.Add("Category added successfully!", Severity.Success);
+    }
+
+    private async Task UploadFile(InputFileChangeEventArgs e)
+    {
+        var entries = e.GetMultipleFiles();
+
+        //TODO upload the files to the server
+        MemoryStream ms = new MemoryStream();
+        await e.File.OpenReadStream().CopyToAsync(ms);
+        var bytes = ms.ToArray();
+
+        Category.Image = Convert.ToBase64String(bytes, 0, bytes.Length);
+    }
+}

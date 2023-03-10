@@ -9,9 +9,9 @@ using System.Threading.Tasks;
 
 namespace DataAccess
 {
-    public class AppDbContext: IdentityDbContext<User, Role, int>
+    public class AppDbContext : IdentityDbContext<User, Role, int>
     {
-        public AppDbContext(DbContextOptions<AppDbContext> options): base(options) { }
+        public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -24,6 +24,16 @@ namespace DataAccess
                 .WithMany(p => p.Orders)
                 .HasForeignKey(op => op.ProductId);
 
+            modelBuilder.Entity<Role>()
+                .HasData(
+                new Role
+                {
+                    Id = 1,
+                    Name = "Customer",
+                    Description = "Customer",
+                    NormalizedName = "CUSTOMER"
+                });
+
             base.OnModelCreating(modelBuilder);
         }
 
@@ -34,6 +44,6 @@ namespace DataAccess
         public DbSet<ProductType> ProductTypes { get; set; }
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrderProduct> OrderProducts { get; set; }
-        public DbSet<OrderStatus> OrdersStatuses { get; set;}
+        public DbSet<OrderStatus> OrdersStatuses { get; set; }
     }
 }

@@ -24,7 +24,13 @@ namespace RESTApi.Controllers
         [HttpPost("register")]
         public async Task PostAsync([FromBody] RegisterRequest registerRequest)
         {
-            await tokenService.CreateTokenAsync(registerRequest);
+            try
+            {
+                await tokenService.CreateTokenAsync(registerRequest);
+            }catch (Exception ex)
+            {
+
+            }
         }
 
         // POST api/<TokenController>/login
